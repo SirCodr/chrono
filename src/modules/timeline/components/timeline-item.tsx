@@ -11,7 +11,7 @@ interface TimelineRecord {
   content: string
   category: string
   tags: string[]
-  recordDate: Date
+  date: Date
   createdAt: Date
 }
 
@@ -20,12 +20,6 @@ interface TimelineItemProps {
 }
 
 export function TimelineItem({ record }: TimelineItemProps) {
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-    })
-  }
 
   return (
     <Card className="relative">
@@ -34,7 +28,6 @@ export function TimelineItem({ record }: TimelineItemProps) {
           <div className="space-y-1">
             <CardTitle className="text-lg">{record.title}</CardTitle>
             <CardDescription className="flex items-center gap-2">
-              <span>{formatTime(record.recordDate)}</span>
               <Badge variant="secondary" className="text-xs">
                 {record.category}
               </Badge>
@@ -61,8 +54,7 @@ export function TimelineItem({ record }: TimelineItemProps) {
       </CardHeader>
       <CardContent>
         <p className="text-sm text-muted-foreground mb-3">{record.description}</p>
-        {record.content && <p className="text-sm mb-3">{record.content}</p>}
-        {record.tags.length > 0 && (
+        {/* {record.tags.length > 0 && (
           <div className="flex flex-wrap gap-1">
             {record.tags.map((tag) => (
               <Badge key={tag} variant="outline" className="text-xs">
@@ -70,7 +62,7 @@ export function TimelineItem({ record }: TimelineItemProps) {
               </Badge>
             ))}
           </div>
-        )}
+        )} */}
       </CardContent>
     </Card>
   )
