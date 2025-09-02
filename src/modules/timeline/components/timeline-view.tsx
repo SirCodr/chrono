@@ -4,9 +4,9 @@ import { Tables } from '@/lib/supabase/database.types'
 
 export async function TimelineView() {
   const supabase = await createServerClient()
-  const { data: posts } = await supabase.from('posts').select('*') as { data: Tables<'posts'>[] }
+  const { data: records } = await supabase.from('records').select('*') as { data: Tables<'records'>[] }
 
-  const groupedRecords: Record<string, Tables<'posts'>[]> = (posts ?? []).reduce((groups, record) => {
+  const groupedRecords: Record<string, Tables<'records'>[]> = (records ?? []).reduce((groups, record) => {
     const date = new Date(record.date)
     const dateKey = date.toISOString().split('T')[0]
 
@@ -15,7 +15,7 @@ export async function TimelineView() {
     }
     groups[dateKey].push(record)
     return groups
-  }, {} as Record<string, Tables<'posts'>[]>)
+  }, {} as Record<string, Tables<'records'>[]>)
 
   return (
     <div className='relative space-y-8'>

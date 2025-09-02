@@ -6,7 +6,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Tables } from "@/lib/supabase/database.types"
 
 interface TimelineItemProps {
-  record: Tables<'posts'>
+  record: Tables<'records'>
 }
 
 export function TimelineItem({ record }: TimelineItemProps) {

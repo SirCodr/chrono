@@ -14,7 +14,7 @@ export type Database = {
   }
   public: {
     Tables: {
-      posts: {
+      records: {
         Row: {
           category: string
           created_at: string
@@ -28,7 +28,7 @@ export type Database = {
         Insert: {
           category: string
           created_at?: string
-          date?: string | null
+          date: string
           description?: string | null
           id?: string
           title: string
@@ -38,7 +38,7 @@ export type Database = {
         Update: {
           category?: string
           created_at?: string
-          date?: string | null
+          date?: string
           description?: string | null
           id?: string
           title?: string

@@ -34,7 +34,7 @@ export async function createPost(data: FormData) {
     const { userId } = await auth()
     const supabase = await createServerClient()
 
-    await supabase.from('posts').insert({
+    await supabase.from('records').insert({
       title: parsedData.data.title,
       description: parsedData.data.description,
       category: parsedData.data.category,
@@ -46,7 +46,7 @@ export async function createPost(data: FormData) {
     return { success: true, error: {}, values }
   }
   catch(error) {
-    console.log('Error on create post action', error)
+    console.log('Error on create record action', error)
     return { error: "Server error", values }
   }
 }
