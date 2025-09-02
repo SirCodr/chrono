@@ -1,31 +1,21 @@
 import { createServerClient } from '@/lib/supabase/server'
 import { TimelineItem } from './timeline-item'
-
-// Mock data for timeline records
-const mockRecords = [
-  {
-    id: '1',
-    title: 'Project Kickoff Meeting',
-    description:
-      'Initial meeting with the development team to discuss project requirements and timeline.',
-    category: 'Work',
-    tags: ['meeting', 'project', 'planning'],
-    date: new Date('2024-01-15T10:00:00'),
-    createdAt: new Date('2024-01-15T10:30:00')
-  }
-]
+import { Tables } from '@/lib/supabase/database.types'
 
 export async function TimelineView() {
   const supabase = await createServerClient()
-  const { data: posts } = await supabase.from('posts').select('*')
+  const { data: posts } = await supabase.from('posts').select('*') as { data: Tables<'posts'>[] }
 
-  const groupedRecords = posts!.reduce((groups, record) => {
-    if (!groups[record.date]) {
-      groups[record.date] = []
+  const groupedRecords: Record<string, Tables<'posts'>[]> = (posts ?? []).reduce((groups, record) => {
+    const date = new Date(record.date)
+    const dateKey = date.toISOString().split('T')[0]
+
+    if (!groups[dateKey]) {
+      groups[dateKey] = []
     }
-    groups[record.date].push(record)
+    groups[dateKey].push(record)
     return groups
-  }, {} as Record<string, typeof mockRecords>)
+  }, {} as Record<string, Tables<'posts'>[]>)
 
   return (
     <div className='relative space-y-8'>
@@ -50,7 +40,7 @@ export async function TimelineView() {
 
             <div className='ml-16 space-y-4'>
               {dayRecords
-                .sort((a, b) => b.recordDate.getTime() - a.recordDate.getTime())
+                .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
                 .map((record) => (
                   <TimelineItem key={record.id} record={record} />
                 ))}

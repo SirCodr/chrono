@@ -3,20 +3,10 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { MoreHorizontal, Edit, Trash2 } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-
-interface TimelineRecord {
-  id: string
-  title: string
-  description: string
-  content: string
-  category: string
-  tags: string[]
-  date: Date
-  createdAt: Date
-}
+import { Tables } from "@/lib/supabase/database.types"
 
 interface TimelineItemProps {
-  record: TimelineRecord
+  record: Tables<'posts'>
 }
 
 export function TimelineItem({ record }: TimelineItemProps) {
