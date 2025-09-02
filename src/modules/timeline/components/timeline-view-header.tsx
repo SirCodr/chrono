@@ -18,7 +18,9 @@ export default function TimelineViewHeader() {
         </Button>
       </div>
 
-      <AddRecordModal open={isModalOpen} onOpenChange={setIsModalOpen} />
+      {isModalOpen && (
+        <AddRecordModal open={true} onOpenChange={setIsModalOpen} onSuccess={() => setIsModalOpen(false)} />
+      )}
     </>
   )
 }

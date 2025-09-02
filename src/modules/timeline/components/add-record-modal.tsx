@@ -1,12 +1,8 @@
 "use client"
 
-import type React from "react"
-
-import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
 import {
   Dialog,
   DialogContent,
@@ -16,92 +12,83 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { toast } from "sonner"
+import { createPost } from "../actions"
+import { useActionState, useEffect, useState } from "react"
+import { DatePicker } from "@/components/ui/date-picker"
 
 interface AddRecordModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
+  onSuccess?: () => void
 }
 
-export function AddRecordModal({ open, onOpenChange }: AddRecordModalProps) {
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    content: "",
-    category: "",
-    tags: "",
-  })
-  const [isLoading, setIsLoading] = useState(false)
+type ActionState = {
+  success: boolean
+  error: Record<string, string[]>
+  values: {
+    title: string
+    description: string
+    category: string
+    date: string
+  }
+}
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
+const initialState: ActionState = {
+  success: false,
+  error: {},
+  values: {
+    title: '',
+    description: '',
+    category: '',
+    date: ''
+  }
+}
 
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+export function AddRecordModal({ open, onOpenChange, onSuccess }: AddRecordModalProps) {
+  const [category, setCategory] = useState<string>("")
+  const [date, setDate] = useState<string>("")
+  const [state, formAction, isPending] = useActionState(
+    async (_: unknown, payload: FormData) => await createPost(payload),
+    initialState
+  )
 
-      toast("Success", {
-        description: "Record added successfully!",
-      })
-
-      // Reset form
-      setFormData({
-        title: "",
-        description: "",
-        content: "",
-        category: "",
-        tags: "",
-      })
-
-      onOpenChange(false)
-    } catch (error) {
-      toast("Error", {
-        description: "Failed to add record. Please try again."
-      })
-    } finally {
-      setIsLoading(false)
+  useEffect(() => {
+    if (state.success && onSuccess) {
+      onSuccess();
     }
-  }
-
-  const handleChange = (field: string, value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }))
-  }
+  }, [state.success, onSuccess])
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[525px]">
         <DialogHeader>
           <DialogTitle>Add New Record</DialogTitle>
-          <DialogDescription>Create a new entry in your timeline. Fill in the details below.</DialogDescription>
+          <DialogDescription>
+            Create a new entry in your timeline. Fill in the details below.
+          </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit}>
+
+        <form action={formAction}>
           <div className="grid gap-4 py-4">
             <div className="space-y-2">
               <Label htmlFor="title">Title</Label>
-              <Input
-                id="title"
-                placeholder="Enter record title"
-                value={formData.title}
-                onChange={(e) => handleChange("title", e.target.value)}
-                required
-              />
+              <Input id="title" name="title" defaultValue={state.values.title} placeholder="Enter record title" />
+                {typeof state.error === "object" && state.error?.title && !isPending && (
+                <p className="text-sm text-red-600">{state.error.title}</p>
+                )}
             </div>
+
             <div className="space-y-2">
               <Label htmlFor="description">Description</Label>
-              <Input
-                id="description"
-                placeholder="Brief description"
-                value={formData.description}
-                onChange={(e) => handleChange("description", e.target.value)}
-              />
+              <Input id="description" name="description" defaultValue={state.values.description} placeholder="Brief description" />
+              {typeof state.error === "object" && state.error?.description && !isPending && (
+                <p className="text-sm text-red-600">{state.error.description}</p>
+                )}
             </div>
+
             <div className="space-y-2">
               <Label htmlFor="category">Category</Label>
-              <Select value={formData.category} onValueChange={(value) => handleChange("category", value)}>
+              <Select value={category} defaultValue={state.values.category} onValueChange={(value) => setCategory(value)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select a category" />
                 </SelectTrigger>
@@ -113,33 +100,33 @@ export function AddRecordModal({ open, onOpenChange }: AddRecordModalProps) {
                   <SelectItem value="other">Other</SelectItem>
                 </SelectContent>
               </Select>
+              {typeof state.error === "object" && state.error?.category && !isPending && (
+                <p className="text-sm text-red-600">{state.error.category}</p>
+                )}
+              <input type="hidden" name="category" value={category} />
             </div>
+
             <div className="space-y-2">
-              <Label htmlFor="content">Content</Label>
-              <Textarea
-                id="content"
-                placeholder="Detailed content of your record"
-                value={formData.content}
-                onChange={(e) => handleChange("content", e.target.value)}
-                rows={4}
-              />
+              <Label htmlFor="content">Date</Label>
+              <DatePicker defaultValue={state.values.date ? new Date(state.values.date) : undefined} onChange={(value) => setDate(value?.toISOString().split("T")[0] || '')} />
+              {typeof state.error === "object" && state.error?.date && !isPending && (
+              <p className="text-sm text-red-600">{state.error.date}</p>
+              )}
+              <input type="hidden" name="date" value={date} />
             </div>
-            <div className="space-y-2">
+
+            {/* <div className="space-y-2">
               <Label htmlFor="tags">Tags</Label>
-              <Input
-                id="tags"
-                placeholder="Enter tags separated by commas"
-                value={formData.tags}
-                onChange={(e) => handleChange("tags", e.target.value)}
-              />
-            </div>
+              <Input id="tags" name="tags" placeholder="Enter tags separated by commas" />
+            </div> */}
           </div>
+
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button type="submit" disabled={isLoading}>
-              {isLoading ? "Adding..." : "Add Record"}
+            <Button type="submit" disabled={isPending}>
+              {isPending ? "Adding..." : "Add Record"}
             </Button>
           </DialogFooter>
         </form>
