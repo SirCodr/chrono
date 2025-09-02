@@ -1,6 +1,7 @@
 import { createServerClient } from '@/lib/supabase/server'
 import { TimelineItem } from './timeline-item'
 import { Tables } from '@/lib/supabase/database.types'
+import TimeLineEmptyState from './timeline-empty-state'
 
 export async function TimelineView() {
   const supabase = await createServerClient()
@@ -16,6 +17,8 @@ export async function TimelineView() {
     groups[dateKey].push(record)
     return groups
   }, {} as Record<string, Tables<'records'>[]>)
+
+  if (records?.length === 0) return <TimeLineEmptyState />
 
   return (
     <div className='relative space-y-8'>
