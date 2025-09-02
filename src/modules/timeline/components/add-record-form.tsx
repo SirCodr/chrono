@@ -44,9 +44,9 @@ const initialState: ActionState = {
   }
 }
 
-export function AddRecordModal({ open, onOpenChange, onSuccess }: AddRecordModalProps) {
+export function AddRecordForm({ open, onOpenChange, onSuccess }: AddRecordModalProps) {
   const [category, setCategory] = useState<string>("")
-  const [date, setDate] = useState<string>("")
+  const [date, setDate] = useState<Date | undefined>(new Date())
   const [state, formAction, isPending] = useActionState(
     async (_: unknown, payload: FormData) => await createPost(payload),
     initialState
@@ -108,11 +108,11 @@ export function AddRecordModal({ open, onOpenChange, onSuccess }: AddRecordModal
 
             <div className="space-y-2">
               <Label htmlFor="content">Date</Label>
-              <DatePicker defaultValue={state.values.date ? new Date(state.values.date) : undefined} onChange={(value) => setDate(value?.toISOString().split("T")[0] || '')} />
+              <DatePicker value={date} onChange={(value) => setDate(value)} />
               {typeof state.error === "object" && state.error?.date && !isPending && (
               <p className="text-sm text-red-600">{state.error.date}</p>
               )}
-              <input type="hidden" name="date" value={date} />
+              <input type="hidden" name="date" value={date?.toISOString().split('T')[0]} />
             </div>
 
             {/* <div className="space-y-2">

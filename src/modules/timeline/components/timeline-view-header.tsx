@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
 import { useState } from "react"
-import { AddRecordModal } from "./add-record-modal"
+import { AddRecordForm } from "./add-record-form"
 
 export default function TimelineViewHeader() {
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -19,7 +19,7 @@ export default function TimelineViewHeader() {
       </div>
 
       {isModalOpen && (
-        <AddRecordModal open={true} onOpenChange={setIsModalOpen} onSuccess={() => setIsModalOpen(false)} />
+        <AddRecordForm open={true} onOpenChange={setIsModalOpen} onSuccess={() => setIsModalOpen(false)} />
       )}
     </>
   )
