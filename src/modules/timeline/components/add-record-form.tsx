@@ -44,6 +44,30 @@ const initialState: ActionState = {
   }
 }
 
+const categories = [
+  "Education",
+  "Entertainment",
+  "Finance",
+  "Food",
+  "Health",
+  "Home",
+  "Personal",
+  "Shopping",
+  "Social",
+  "Transport",
+  "Work"
+];
+
+function CategoryOptions({ categories }: { categories: string[] }) {
+  return (
+    categories.map((category) => (
+      <SelectItem key={category} value={category}>
+        {category.charAt(0).toUpperCase() + category.slice(1)}
+      </SelectItem>
+    ))
+  )
+}
+
 export function AddRecordForm({ open, onOpenChange, onSuccess }: AddRecordModalProps) {
   const [category, setCategory] = useState<string>("")
   const [date, setDate] = useState<Date | undefined>(new Date())
@@ -93,11 +117,7 @@ export function AddRecordForm({ open, onOpenChange, onSuccess }: AddRecordModalP
                   <SelectValue placeholder="Select a category" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="work">Work</SelectItem>
-                  <SelectItem value="personal">Personal</SelectItem>
-                  <SelectItem value="learning">Learning</SelectItem>
-                  <SelectItem value="health">Health</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
+                  <CategoryOptions categories={categories} />
                 </SelectContent>
               </Select>
               {typeof state.error === "object" && state.error?.category && !isPending && (
