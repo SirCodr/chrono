@@ -2,12 +2,14 @@ import { createServerClient } from '@/lib/supabase/server'
 import { TimelineItem } from './timeline-item'
 import { Tables } from '@/lib/supabase/database.types'
 import TimeLineEmptyState from './timeline-empty-state'
+import { format, parseISO } from 'date-fns'
 
 export async function TimelineView() {
   const supabase = await createServerClient()
   const { data: records } = await supabase.from('records').select('*') as { data: Tables<'records'>[] }
 
   const groupedRecords: Record<string, Tables<'records'>[]> = (records ?? []).reduce((groups, record) => {
+    debugger
     const date = new Date(record.date)
     const dateKey = date.toISOString().split('T')[0]
 
@@ -32,12 +34,7 @@ export async function TimelineView() {
                 <div className='h-2 w-2 rounded-full bg-primary-foreground'></div>
               </div>
               <h3 className='text-lg font-medium text-foreground'>
-                {new Date(date).toLocaleDateString('en-US', {
-                  weekday: 'long',
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric'
-                })}
+                {format(parseISO(date), 'MMMM dd, yyyy')}
               </h3>
             </div>
 
