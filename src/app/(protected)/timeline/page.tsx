@@ -1,4 +1,5 @@
 import { Header } from '@/components/header'
+import { FiltersBar } from '@/modules/timeline/components/filters-bar'
 import { TimelineView } from '@/modules/timeline/components/timeline-view'
 import TimelineViewHeader from '@/modules/timeline/components/timeline-view-header'
 
@@ -19,6 +20,7 @@ export default async function HomePage() {
             </div>
           </div>
           <div className='space-y-6'>
+            <FiltersBar />
             <TimelineViewHeader />
             <TimelineView />
           </div>
