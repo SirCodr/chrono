@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { createPost } from "../actions"
 import { useActionState, useEffect, useState } from "react"
 import { DatePicker } from "@/components/ui/date-picker"
+import { dateToTimestamptz } from "@/lib/utils"
 
 interface AddRecordModalProps {
   open: boolean
@@ -132,7 +133,7 @@ export function AddRecordForm({ open, onOpenChange, onSuccess }: AddRecordModalP
               {typeof state.error === "object" && state.error?.date && !isPending && (
               <p className="text-sm text-red-600">{state.error.date}</p>
               )}
-              <input type="hidden" name="date" value={date?.toISOString().split('T')[0]} />
+              <input type="hidden" name="date" value={date ? dateToTimestamptz(date) : undefined} />
             </div>
 
             {/* <div className="space-y-2">
