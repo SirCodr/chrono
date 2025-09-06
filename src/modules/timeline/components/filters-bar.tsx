@@ -8,27 +8,30 @@ import { DateRangePicker } from "@/components/ui/date-range-picker"
 import { DateRange } from "react-day-picker"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { dateToTimestamptz } from "@/lib/utils"
+import { useEffect, useState } from "react"
+import { useDebounce } from 'use-debounce'
 
 export function FiltersBar() {
   const searchParams = useSearchParams()
   const pathname = usePathname()
   const { replace } = useRouter()
+  const [date, setDate] = useState<DateRange | undefined>({
+    from: searchParams.has("from") ? new Date(searchParams.get("from")!) : undefined,
+    to: searchParams.has("to") ? new Date(searchParams.get("to")!) : undefined,
+  })
+  const [ search, setSearch ] = useState(searchParams.get("search") || "")
+  const [debouncedDate] = useDebounce(date, 150)
+  const [debouncedSearch] = useDebounce(search, 150)
 
-  const searchParam = searchParams.get("search")
-  const dateFromParam = searchParams.get("from")
-  const dateToParam = searchParams.get("to")
 
   const clearFilters = () => {
-    const params = new URLSearchParams(searchParams)
-    params.delete("search")
-    params.delete("from")
-    params.delete("to")
-    replace(`${pathname}?${params.toString()}`)
+    setDate(undefined)
+    setSearch("")
   }
 
-  function handleSearchChange(query: string) {
+  function updateSearchParam(query: string) {
     const params = new URLSearchParams(searchParams.toString())
-    if (query) {
+    if (query.trim().length > 0) {
       params.set("search", query)
     } else {
       params.delete("search")
@@ -37,7 +40,7 @@ export function FiltersBar() {
     replace(`${pathname}?${params.toString()}`)
   }
 
-  function handleDateChange(date: DateRange | undefined) {
+  function updateDateParam(date: DateRange | undefined) {
     const params = new URLSearchParams(searchParams.toString())
     if (date?.from) {
       const fromTimeStamp = dateToTimestamptz(date.from)
@@ -56,7 +59,15 @@ export function FiltersBar() {
     replace(`${pathname}?${params.toString()}`)
   }
 
-  const hasActiveFilters = searchParam || dateFromParam
+  const hasActiveFilters = search || date?.from
+
+  useEffect(() => {
+    updateDateParam(debouncedDate)
+  }, [debouncedDate])
+
+  useEffect(() => {
+    updateSearchParam(debouncedSearch)
+  }, [debouncedSearch])
 
   return (
     <div className='flex flex-col sm:flex-row gap-4 p-6 bg-gradient-to-r from-background to-muted/20 rounded-xl border border-border/50 shadow-sm'>
@@ -69,8 +80,8 @@ export function FiltersBar() {
           <Input
             id='search'
             placeholder='Search your timeline records...'
-            value={searchParam || ''}
-            onChange={(e) => handleSearchChange(e.target.value)}
+            value={search || ''}
+            onChange={(e) => setSearch(e.target.value)}
             className='pl-12 h-12 text-base bg-background/50 border-border/50 focus:border-primary/50 focus:ring-primary/20 rounded-lg'
           />
         </div>
@@ -78,11 +89,8 @@ export function FiltersBar() {
 
       <div className='flex gap-3'>
         <DateRangePicker
-          value={{ 
-            from: searchParams.has("from") ? new Date(dateFromParam!) : undefined,
-            to: searchParams.has("to") ? new Date(dateToParam!) : undefined, 
-          }}
-          onChange={handleDateChange}
+          value={date}
+          onChange={(date) => setDate(date)}
         />
 
         {hasActiveFilters && (
