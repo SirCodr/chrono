@@ -12,6 +12,8 @@ const postCreationSchema = z.object({
   date: z.coerce.date({ error: 'Invalid date' })
 })
 
+const idSchema = z.string().min(1, 'ID is required').uuid('Invalid ID')
+
 export async function createPost(data: FormData) {
   const values = {
     title: data.get('title') as string,
@@ -48,5 +50,30 @@ export async function createPost(data: FormData) {
   catch(error) {
     console.log('Error on create record action', error)
     return { error: "Server error", values }
+  }
+}
+
+export async function deletePost(id: string) {
+  try {
+    const parsedData = idSchema.safeParse(id)
+
+    if (!parsedData.success) {
+      return {
+        success: false,
+        error: parsedData.error.flatten().fieldErrors,
+        id
+      }
+    }
+
+    const supabase = await createServerClient()
+
+    const res = await supabase.from('records').delete().eq('id', id)
+
+    revalidatePath('/timeline')
+    return { success: true, error: {}, id }
+  }
+  catch(error) {
+    console.log('Error on delete record action', error)
+    return { error: "Server error", id }
   }
 }

@@ -78,8 +78,6 @@ export function FiltersBar() {
         )}
       </div>
 
-      {/* -------- */}
-
       <div className='flex flex-col sm:flex-row gap-4 p-6 bg-gradient-to-r from-background to-muted/20 rounded-xl border border-border/50 shadow-sm'>
         <div className='flex-1'>
           <Label htmlFor='search' className='sr-only'>

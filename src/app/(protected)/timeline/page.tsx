@@ -2,6 +2,7 @@ import { Header } from '@/components/header'
 import { FiltersBar } from '@/modules/timeline/components/filters-bar'
 import { TimelineView } from '@/modules/timeline/components/timeline-view'
 import TimelineViewHeader from '@/modules/timeline/components/timeline-view-header'
+import { revalidatePath } from 'next/cache'
 
 export default async function HomePage({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
   return (
