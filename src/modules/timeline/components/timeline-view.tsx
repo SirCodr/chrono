@@ -4,16 +4,34 @@ import { Tables } from '@/lib/supabase/database.types'
 import TimeLineEmptyState from './timeline-empty-state'
 import { format, parseISO } from 'date-fns'
 
-export async function TimelineView() {
-  const supabase = await createServerClient()
-  const { data: records } = await supabase.from('records').select('*') as { data: Tables<'records'>[] }
+type Props = {
+  searchParams?: { [key: string]: string | string[] | undefined }
+}
 
+export async function TimelineView({ searchParams }: Props) {
+  const supabase = await createServerClient()
+
+  let query = supabase.from('records').select('*')
+
+  if (searchParams?.from) {
+    query = query.gte('date', searchParams.from as string)
+  }
+  if (searchParams?.to) {
+    query = query.lte('date', searchParams.to as string)
+  }
+  if (searchParams?.search) {
+    query = query.ilike('title', `%${searchParams.search}%`)
+  }
+
+  const { data: records } = await query.order('date', { ascending: false })
   const groupedRecords: Record<string, Tables<'records'>[]> = (records ?? []).reduce((groups, record) => {
     debugger
     const date = new Date(record.date)
     const dateKey = date.toISOString().split('T')[0]
 
-    if (!groups[dateKey]) {
+    if (!groups[dateKey
+
+    ]) {
       groups[dateKey] = []
     }
     groups[dateKey].push(record)

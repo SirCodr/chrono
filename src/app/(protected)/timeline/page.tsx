@@ -3,7 +3,7 @@ import { FiltersBar } from '@/modules/timeline/components/filters-bar'
 import { TimelineView } from '@/modules/timeline/components/timeline-view'
 import TimelineViewHeader from '@/modules/timeline/components/timeline-view-header'
 
-export default async function HomePage() {
+export default async function HomePage({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
   return (
     <div className='min-h-screen bg-background'>
       <Header />
@@ -22,7 +22,7 @@ export default async function HomePage() {
           <div className='space-y-6'>
             <FiltersBar />
             <TimelineViewHeader />
-            <TimelineView />
+            <TimelineView searchParams={searchParams} />
           </div>
         </div>
       </main>
