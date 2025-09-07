@@ -30,7 +30,7 @@ export function FiltersBar() {
     })
   }
 
-  const hasActiveFilters = search || fromDate || toDate
+  const hasActiveFilters = searchParams.has("search") || searchParams.has("from") || searchParams.has("to")
 
   function submitSearch() {
     startTransition(() => {
@@ -123,7 +123,7 @@ export function FiltersBar() {
             variant='outline'
             className='h-12 px-6 bg-gradient-to-br from-orange-500 to-orange-600 text-white font-medium rounded-xl shadow-sm  hover:bg-gradient-to-br hover:from-orange-600/80 hover:to-orange-700/80 hover:shadow-md transition-all hover:text-white duration-200 border-0'
             onClick={submitSearch}
-            disabled={isPending}
+            disabled={isPending || (!search && !fromDate && !toDate)}
           >
             <SearchIcon className='h-4 w-4' />
             <span>{isPending ? 'Searching' : 'Search'}</span>
