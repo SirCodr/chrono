@@ -5,22 +5,26 @@ import TimeLineEmptyState from './timeline-empty-state'
 import { format, parseISO } from 'date-fns'
 
 type Props = {
-  searchParams?: { [key: string]: string | string[] | undefined }
+  filterParams: {
+    from?: string
+    to?: string
+    search?: string
+  }
 }
 
-export async function TimelineView({ searchParams }: Props) {
+export async function TimelineView({ filterParams }: Props) {
   const supabase = await createServerClient()
 
   let query = supabase.from('records').select('*')
 
-  if (searchParams?.from) {
-    query = query.gte('date', searchParams.from as string)
+  if (filterParams?.from) {
+    query = query.gte('date', filterParams.from as string)
   }
-  if (searchParams?.to) {
-    query = query.lte('date', searchParams.to as string)
+  if (filterParams?.to) {
+    query = query.lte('date', filterParams.to as string)
   }
-  if (searchParams?.search) {
-    query = query.ilike('title', `%${searchParams.search}%`)
+  if (filterParams?.search) {
+    query = query.ilike('title', `%${filterParams.search}%`)
   }
 
   const { data: records } = await query.order('date', { ascending: false })

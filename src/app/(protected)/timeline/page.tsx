@@ -2,9 +2,14 @@ import { Header } from '@/components/header'
 import { FiltersBar } from '@/modules/timeline/components/filters-bar'
 import { TimelineView } from '@/modules/timeline/components/timeline-view'
 import TimelineViewHeader from '@/modules/timeline/components/timeline-view-header'
-import { revalidatePath } from 'next/cache'
 
-export default async function HomePage({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
+type PageProps = {
+  searchParams: Promise<{ from?: string; to?: string; search?: string }>
+}
+
+export default async function HomePage({ searchParams }: PageProps) {
+  const filterParams = await searchParams
+
   return (
     <div className='min-h-screen bg-background'>
       <Header />
@@ -23,7 +28,7 @@ export default async function HomePage({ searchParams }: { searchParams: { [key:
           <div className='space-y-6'>
             <FiltersBar />
             <TimelineViewHeader />
-            <TimelineView searchParams={searchParams} />
+            <TimelineView filterParams={filterParams} />
           </div>
         </div>
       </main>
