@@ -112,7 +112,7 @@ export async function deletePost(id: string) {
 
     const supabase = await createServerClient()
 
-    const res = await supabase.from('records').delete().eq('id', id)
+    await supabase.from('records').delete().eq('id', id)
 
     revalidatePath('/timeline')
     return { success: true, error: {}, id }

@@ -50,7 +50,7 @@ function DeleteDialog({
   setOpen: (open: boolean) => void
   id: string
 }) {
-  const [state, formAction, isPending] = useActionState(
+  const [_, formAction, isPending] = useActionState(
     async (_: unknown, payload: string) => await deletePost(payload),
     {
       success: false,

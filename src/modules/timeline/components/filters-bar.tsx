@@ -3,14 +3,10 @@
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Filter, Search, SearchIcon, X } from "lucide-react"
-import { DateRangePicker } from "@/components/ui/date-range-picker"
-import { DateRange } from "react-day-picker"
+import { Filter, Search, SearchIcon } from "lucide-react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { cn, dateToTimestamptz } from "@/lib/utils"
 import { useEffect, useState, useTransition } from "react"
-import { useDebounce } from 'use-debounce'
-import { set } from "date-fns"
 import { DatePicker } from "@/components/ui/date-picker"
 
 export function FiltersBar() {
