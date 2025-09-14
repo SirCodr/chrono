@@ -12,6 +12,10 @@ const postCreationSchema = z.object({
   date: z.coerce.date({ error: 'Invalid date' })
 })
 
+const editCreationSchema = postCreationSchema.extend({
+  id: z.string().uuid('Invalid ID')
+})
+
 const idSchema = z.string().min(1, 'ID is required').uuid('Invalid ID')
 
 export async function createPost(data: FormData) {
@@ -49,6 +53,47 @@ export async function createPost(data: FormData) {
   }
   catch(error) {
     console.log('Error on create record action', error)
+    return { error: "Server error", values }
+  }
+}
+
+export async function editPost(data: FormData) {
+  const values = {
+    id: data.get('id') as string,
+    title: data.get('title') as string,
+    description: data.get('description') as string,
+    category: data.get('category') as string,
+    date: data.get('date') as string
+  }
+
+  try {
+    const parsedData = editCreationSchema.safeParse(values)
+
+    if (!parsedData.success) {
+      return {
+        success: false,
+        error: parsedData.error.flatten().fieldErrors,
+        values
+      }
+    }
+
+    const { userId } = await auth()
+    const supabase = await createServerClient()
+
+    await supabase.from('records').update({
+      title: parsedData.data.title,
+      description: parsedData.data.description,
+      category: parsedData.data.category,
+      date: parsedData.data.date,
+      user_id: userId
+    })
+    .eq('id', parsedData.data.id)
+
+    revalidatePath('/timeline')
+    return { success: true, error: {}, values }
+  }
+  catch(error) {
+    console.log('Error on edit record action', error)
     return { error: "Server error", values }
   }
 }

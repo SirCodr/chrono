@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button'
 import { Clock, Plus, Sparkles } from 'lucide-react'
 import { useState } from 'react'
-import { AddRecordForm } from './add-record-form'
+import { RecordForm } from './record-form'
 
 export default function TimeLineEmptyState() {
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -44,7 +44,7 @@ export default function TimeLineEmptyState() {
         </div>
       </div>
       {isModalOpen && (
-        <AddRecordForm
+        <RecordForm
           open={true}
           onOpenChange={setIsModalOpen}
           onSuccess={() => setIsModalOpen(false)}

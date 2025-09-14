@@ -23,15 +23,19 @@ import {
 } from '@/components/ui/alert-dialog'
 import {
   AlertDialog,
-  AlertDialogTrigger,
   AlertDialogContent,
   AlertDialogTitle,
   AlertDialogDescription,
   AlertDialogCancel,
-  AlertDialogAction
 } from '@/components/ui/alert-dialog'
 import { useActionState, useState } from 'react'
 import { deletePost } from '../actions'
+import { RecordForm } from './record-form'
+
+const MODALS = {
+  EDIT: 'edit',
+  DELETE: 'delete'
+}
 
 interface TimelineItemProps {
   record: Tables<'records'>
@@ -80,7 +84,7 @@ function DeleteDialog({
 }
 
 export function TimelineItem({ record }: TimelineItemProps) {
-  const [open, setOpen] = useState(false)
+  const [currentModal, setCurrentModal] = useState<typeof MODALS[keyof typeof MODALS] | null>(null)
 
   return (
     <>
@@ -102,13 +106,15 @@ export function TimelineItem({ record }: TimelineItemProps) {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align='end'>
-                <DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => setCurrentModal(MODALS.EDIT)}
+                >
                   <Edit className='mr-2 h-4 w-4' />
                   Edit
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className='text-destructive'
-                  onClick={() => setOpen(true)}
+                  onClick={() => setCurrentModal(MODALS.DELETE)}
                 >
                   <Trash2 className='mr-2 h-4 w-4' />
                   Delete
@@ -133,7 +139,30 @@ export function TimelineItem({ record }: TimelineItemProps) {
         </CardContent>
       </Card>
 
-      <DeleteDialog open={open} setOpen={setOpen} id={record.id} />
+      {currentModal === MODALS.EDIT && (
+        <RecordForm
+          key={MODALS.EDIT + record.id}
+          open={true}
+          onOpenChange={(isOpen: boolean) => {
+            if (isOpen) setCurrentModal(MODALS.EDIT)
+            else setCurrentModal(null)
+          }}
+          onSuccess={() => setCurrentModal(null)}
+          record={record}
+        />
+      )}
+      {
+        currentModal === MODALS.DELETE && (
+          <DeleteDialog
+            open={true}
+            setOpen={(isOpen: boolean) => {
+              if (isOpen) setCurrentModal(MODALS.DELETE)
+              else setCurrentModal(null)
+            }}
+            id={record.id}
+          />
+        )
+      }
     </>
   )
 }

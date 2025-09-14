@@ -12,15 +12,17 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { createPost } from "../actions"
+import { createPost, editPost } from "../actions"
 import { useActionState, useEffect, useState } from "react"
 import { DatePicker } from "@/components/ui/date-picker"
 import { dateToTimestamptz } from "@/lib/utils"
+import { Tables } from "@/lib/supabase/database.types"
 
-interface AddRecordModalProps {
+interface RecordModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   onSuccess?: () => void
+  record?: Tables<'records'>
 }
 
 type ActionState = {
@@ -31,17 +33,6 @@ type ActionState = {
     description: string
     category: string
     date: string
-  }
-}
-
-const initialState: ActionState = {
-  success: false,
-  error: {},
-  values: {
-    title: '',
-    description: '',
-    category: '',
-    date: ''
   }
 }
 
@@ -69,11 +60,42 @@ function CategoryOptions({ categories }: { categories: string[] }) {
   )
 }
 
-export function AddRecordForm({ open, onOpenChange, onSuccess }: AddRecordModalProps) {
-  const [category, setCategory] = useState<string>("")
-  const [date, setDate] = useState<Date | undefined>(new Date())
+function SubmitButton({ isEditMode, isLoading } : { isEditMode: boolean, isLoading: boolean }) {
+  const text = () => {
+    if (isEditMode && isLoading) return 'Updating...'
+
+    if (isEditMode && !isLoading) return 'Update Changes'
+
+    if (!isEditMode && isLoading) return 'Adding...'
+
+    return 'Add Record'
+  }
+
+  return (
+    <Button type="submit" disabled={isLoading}>
+      {text()}
+    </Button>
+  )
+}
+
+export function RecordForm({ record, open, onOpenChange, onSuccess }: RecordModalProps) {
+  const initialState: ActionState = {
+  success: false,
+  error: {},
+  values: {
+    title: record?.title || '',
+    description: record?.description || '',
+    category: record?.category || '',
+    date: record?.date || ''
+  }
+}
+
+  const [category, setCategory] = useState<string>(initialState.values.category)
+  const [date, setDate] = useState<Date | undefined>(
+    initialState.values.date ? new Date(initialState.values.date) : new Date()
+  )
   const [state, formAction, isPending] = useActionState(
-    async (_: unknown, payload: FormData) => await createPost(payload),
+    async (_: unknown, payload: FormData) => record ? await editPost(payload) : await createPost(payload),
     initialState
   )
 
@@ -87,14 +109,20 @@ export function AddRecordForm({ open, onOpenChange, onSuccess }: AddRecordModalP
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[525px]">
         <DialogHeader>
-          <DialogTitle>Add New Record</DialogTitle>
+          <DialogTitle>{record ? 'Edit' : 'Add New'} Record</DialogTitle>
           <DialogDescription>
-            Create a new entry in your timeline. Fill in the details below.
+            {
+              record
+                ? 'Make changes to your record details and save.'
+                : 'Fill in the details below to add a new record.'
+            }
           </DialogDescription>
         </DialogHeader>
 
         <form action={formAction}>
           <div className="grid gap-4 py-4">
+            <input type="hidden" name="id" value={record?.id} />
+
             <div className="space-y-2">
               <Label htmlFor="title">Title</Label>
               <Input id="title" name="title" defaultValue={state.values.title} placeholder="Enter record title" />
@@ -146,9 +174,7 @@ export function AddRecordForm({ open, onOpenChange, onSuccess }: AddRecordModalP
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button type="submit" disabled={isPending}>
-              {isPending ? "Adding..." : "Add Record"}
-            </Button>
+            <SubmitButton isEditMode={Boolean(record)} isLoading={isPending} />
           </DialogFooter>
         </form>
       </DialogContent>
