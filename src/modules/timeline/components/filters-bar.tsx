@@ -42,6 +42,11 @@ export function FiltersBar() {
     })
   }
 
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    submitSearch()
+  }
+
   useEffect(() => {
     setSearch(searchParams.get("search") || "")
     setFromDate(searchParams.has("from") ? new Date(searchParams.get("from")!) : undefined)
@@ -75,7 +80,7 @@ export function FiltersBar() {
       </div>
 
       <div className='flex flex-col sm:flex-row gap-4 p-6 bg-gradient-to-r from-background to-muted/20 rounded-xl border border-border/50 shadow-sm'>
-        <div className='flex-1'>
+        <form className='flex-1' onSubmit={handleSubmit} >
           <Label htmlFor='search' className='sr-only'>
             Search records
           </Label>
@@ -89,7 +94,7 @@ export function FiltersBar() {
               className='pl-12 h-12 text-base bg-background/50 border-border/50 focus:border-primary/50 focus:ring-primary/20 rounded-lg'
             />
           </div>
-        </div>
+        </form>
 
         <div className='flex flex-col sm:flex-row gap-4 lg:w-auto'>
           <DatePicker
