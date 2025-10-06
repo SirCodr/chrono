@@ -4,6 +4,7 @@ import { Tables } from '@/lib/supabase/database.types'
 import TimeLineEmptyState from './timeline-empty-state'
 import { differenceInDays, differenceInMonths, differenceInWeeks, differenceInYears, format, parseISO } from 'date-fns'
 import { Calendar } from 'lucide-react'
+import { auth } from '@clerk/nextjs/server'
 
 type Props = {
   filterParams: {
@@ -15,6 +16,7 @@ type Props = {
 
 export async function TimelineView({ filterParams }: Props) {
   const supabase = await createServerClient()
+  const { userId } = await auth()
 
   let query = supabase.from('records').select('*')
 
@@ -27,6 +29,8 @@ export async function TimelineView({ filterParams }: Props) {
   if (filterParams?.search) {
     query = query.ilike('title', `%${filterParams.search}%`)
   }
+
+  query = query.eq('user_id', userId)
 
   const { data: records } = await query.order('date', { ascending: false })
   const groupedRecords: Record<string, Tables<'records'>[]> = (records ?? []).reduce((groups, record) => {
