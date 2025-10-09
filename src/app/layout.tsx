@@ -5,6 +5,7 @@ import { DM_Sans } from "next/font/google"
 import "./globals.css"
 import { Toaster } from "sonner"
 import { ClerkProvider } from '@clerk/nextjs'
+import {NextIntlClientProvider} from 'next-intl';
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -30,10 +31,12 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <ClerkProvider>
-      <html lang="en" suppressHydrationWarning>
+    <ClerkProvider >
+      <html suppressHydrationWarning>
         <body className={`font-sans ${spaceGrotesk.variable} ${dmSans.variable} antialiased`}>
-          {children}
+          <NextIntlClientProvider>
+            {children}
+          </NextIntlClientProvider>
           <Toaster />
         </body>
       </html>
