@@ -6,6 +6,8 @@ import "./globals.css"
 import { Toaster } from "sonner"
 import { ClerkProvider } from '@clerk/nextjs'
 import {NextIntlClientProvider} from 'next-intl';
+import { useLocale } from 'next-intl';
+import { esES, enUS } from '@clerk/localizations'
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -30,15 +32,18 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const locale = useLocale();
+  const clerkLocalization = locale === 'es' ? esES : enUS;
+
   return (
-    <ClerkProvider >
+    <ClerkProvider localization={clerkLocalization}>
       <html suppressHydrationWarning>
-        <body className={`font-sans ${spaceGrotesk.variable} ${dmSans.variable} antialiased`}>
-          <NextIntlClientProvider>
-            {children}
-          </NextIntlClientProvider>
-          <Toaster />
-        </body>
+      <body className={`font-sans ${spaceGrotesk.variable} ${dmSans.variable} antialiased`}>
+      <NextIntlClientProvider>
+      {children}
+      </NextIntlClientProvider>
+      <Toaster />
+      </body>
       </html>
     </ClerkProvider>
   )
