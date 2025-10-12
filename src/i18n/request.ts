@@ -15,6 +15,7 @@ export default getRequestConfig(async () => {
       messages
     };
   } catch (error) {
+    console.warn(`No messages found for locale "${locale}", falling back to default locale "${DEFAULT_LOCALE}".`);
     // Si no existe el archivo, usa fallback al DEFAULT_LOCALE
     const fallbackMessages = (await import(`../../messages/${DEFAULT_LOCALE}.json`)).default;
     return {
