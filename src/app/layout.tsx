@@ -37,7 +37,7 @@ export default function RootLayout({
 
   return (
     <ClerkProvider localization={clerkLocalization}>
-      <html suppressHydrationWarning>
+      <html lang={locale} suppressHydrationWarning>
       <body className={`font-sans ${spaceGrotesk.variable} ${dmSans.variable} antialiased`}>
       <NextIntlClientProvider>
       {children}
