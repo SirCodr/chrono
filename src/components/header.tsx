@@ -26,7 +26,7 @@ export function Header() {
             </h1>
           </Link>
 
-          <NavigationMenu className="hidden md:flex">
+          {/* <NavigationMenu className="hidden md:flex">
             <NavigationMenuList>
               <NavigationMenuItem>
                 <NavigationMenuTrigger>
@@ -57,7 +57,7 @@ export function Header() {
                 </NavigationMenuContent>
               </NavigationMenuItem>
             </NavigationMenuList>
-          </NavigationMenu>
+          </NavigationMenu> */}
         </div>
 
         <div className="flex items-center space-x-4">
