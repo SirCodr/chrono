@@ -2,21 +2,24 @@
 
 import { createServerClient } from '@/lib/supabase/server'
 import { auth } from '@clerk/nextjs/server'
+import { getTranslations } from 'next-intl/server'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 
+const t = await getTranslations('timeline.form.errors')
+
 const postCreationSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
+  title: z.string().min(1, t('titleRequired')),
   description: z.string().optional(),
-  category: z.string().min(1, 'Category is required'),
-  date: z.coerce.date({ error: 'Invalid date' })
+  category: z.string().min(1, t('categoryRequired')),
+  date: z.coerce.date({ error: t('dateInvalid') })
 })
 
 const editCreationSchema = postCreationSchema.extend({
-  id: z.string().uuid('Invalid ID')
+  id: z.string().uuid(t('invalidId'))
 })
 
-const idSchema = z.string().min(1, 'ID is required').uuid('Invalid ID')
+const idSchema = z.string().min(1, t('idRequired')).uuid(t('invalidId'))
 
 export async function createPost(data: FormData) {
   const values = {
@@ -53,7 +56,7 @@ export async function createPost(data: FormData) {
   }
   catch(error) {
     console.log('Error on create record action', error)
-    return { error: "Server error", values }
+    return { error: t('serverError'), values }
   }
 }
 
@@ -94,7 +97,7 @@ export async function editPost(data: FormData) {
   }
   catch(error) {
     console.log('Error on edit record action', error)
-    return { error: "Server error", values }
+    return { error: t('serverError'), values }
   }
 }
 
@@ -119,6 +122,6 @@ export async function deletePost(id: string) {
   }
   catch(error) {
     console.log('Error on delete record action', error)
-    return { error: "Server error", id }
+    return { error: t('serverError'), id }
   }
 }

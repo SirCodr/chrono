@@ -31,6 +31,7 @@ import {
 import { useActionState, useState } from 'react'
 import { deletePost } from '../actions'
 import { RecordForm } from './record-form'
+import { useTranslations } from 'next-intl'
 
 const MODALS = {
   EDIT: 'edit',
@@ -50,6 +51,7 @@ function DeleteDialog({
   setOpen: (open: boolean) => void
   id: string
 }) {
+  const t = useTranslations()
   const [_, formAction, isPending] = useActionState(
     async (_: unknown, payload: string) => await deletePost(payload),
     {
@@ -65,16 +67,15 @@ function DeleteDialog({
         <form action={() => formAction(id)}>
           <input type='hidden' name='id' value={id} />
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogTitle>{t('timeline.form.confirmDeleteTitle')}</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete your
-              record.
+              {t('timeline.form.confirmDeleteDescription')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
               <Button type='submit' disabled={isPending} variant='outline' className='text-white bg-destructive hover:bg-destructive/90 hover:text-white'>
-              {isPending ? 'Deleting...' : 'Continue'}
+              {isPending ? t('forms.delete.ctaLoadingTextNoItem') : t('common.continue')}
             </Button>
           </AlertDialogFooter>
         </form>
@@ -84,6 +85,7 @@ function DeleteDialog({
 }
 
 export function TimelineItem({ record }: TimelineItemProps) {
+  const t = useTranslations()
   const [currentModal, setCurrentModal] = useState<typeof MODALS[keyof typeof MODALS] | null>(null)
 
   return (
@@ -95,7 +97,7 @@ export function TimelineItem({ record }: TimelineItemProps) {
               <CardTitle className='text-lg'>{record.title}</CardTitle>
               <CardDescription className='flex items-center gap-2'>
                 <Badge variant='secondary' className='text-xs'>
-                  {record.category}
+                  {t(`timeline.categories.${record.category}` as any)}
                 </Badge>
               </CardDescription>
             </div>
@@ -110,14 +112,14 @@ export function TimelineItem({ record }: TimelineItemProps) {
                   onClick={() => setCurrentModal(MODALS.EDIT)}
                 >
                   <Edit className='mr-2 h-4 w-4' />
-                  Edit
+                  {t('common.edit')}
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className='text-destructive'
                   onClick={() => setCurrentModal(MODALS.DELETE)}
                 >
                   <Trash2 className='mr-2 h-4 w-4' />
-                  Delete
+                  {t('common.delete')}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

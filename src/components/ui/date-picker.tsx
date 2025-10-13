@@ -12,6 +12,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import { useLocale, useTranslations } from "next-intl"
+import { useDateFnsLocale } from "@/hooks/useDateFnsLocale"
 
 type DatePickerProps = {
   value: Date | undefined
@@ -22,6 +24,8 @@ type DatePickerProps = {
 }
 
 export function DatePicker({ value, defaultValue, placeholder, className, onChange }: DatePickerProps) {
+  const t  = useTranslations('datepicker')
+  const dateLocale = useDateFnsLocale()
   const date = value ?? defaultValue
 
   const handleSelect = (newDate: Date | undefined) => {
@@ -32,16 +36,28 @@ export function DatePicker({ value, defaultValue, placeholder, className, onChan
     <Popover>
       <PopoverTrigger asChild>
         <Button
-          variant="outline"
+          variant='outline'
           data-empty={!date}
-          className={cn("data-[empty=true]:text-muted-foreground w-[280px] justify-start text-left font-normal", className)}
+          className={cn(
+            'data-[empty=true]:text-muted-foreground w-[280px] justify-start text-left font-normal capitalize',
+            className
+          )}
         >
-          <CalendarIcon className="mr-2 h-4 w-4" />
-          {date ? format(date, "MMM dd") : <span>{placeholder || 'Pick a date'}</span>}
+          <CalendarIcon className='mr-2 h-4 w-4' />
+          {date ? (
+            format(date, 'MMM dd', { locale: dateLocale })
+          ) : (
+            <span>{placeholder || t('pickDate')}</span>
+          )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-auto p-0">
-        <Calendar mode="single" selected={date} onSelect={handleSelect} />
+      <PopoverContent className='w-auto p-0'>
+        <Calendar
+          mode='single'
+          selected={date}
+          onSelect={handleSelect}
+          locale={dateLocale}
+        />
       </PopoverContent>
     </Popover>
   )

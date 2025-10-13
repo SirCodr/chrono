@@ -8,7 +8,7 @@ export default getRequestConfig(async () => {
   const locale = store.get('locale')?.value || DEFAULT_LOCALE;
 
   try {
-    const messages = (await import(`../../messages/${locale}.json`)).default;
+    const messages = (await import(`../../messages/${locale}.ts`)).default;
 
     return {
       locale,
@@ -17,7 +17,7 @@ export default getRequestConfig(async () => {
   } catch (error) {
     console.warn(`No messages found for locale "${locale}", falling back to default locale "${DEFAULT_LOCALE}".`);
     // Si no existe el archivo, usa fallback al DEFAULT_LOCALE
-    const fallbackMessages = (await import(`../../messages/${DEFAULT_LOCALE}.json`)).default;
+    const fallbackMessages = (await import(`../../messages/${DEFAULT_LOCALE}.ts`)).default;
     return {
       locale: DEFAULT_LOCALE,
       messages: fallbackMessages

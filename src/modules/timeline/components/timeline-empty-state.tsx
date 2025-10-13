@@ -4,8 +4,10 @@ import { Button } from '@/components/ui/button'
 import { Clock, Plus, Sparkles } from 'lucide-react'
 import { useState } from 'react'
 import { RecordForm } from './record-form'
+import { useTranslations } from 'next-intl'
 
 export default function TimeLineEmptyState() {
+  const t = useTranslations('timeline.emptyState')
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   return (
@@ -21,12 +23,11 @@ export default function TimeLineEmptyState() {
         </div>
 
         <h3 className='text-2xl font-bold text-foreground mb-2'>
-          Your timeline awaits
+          {t('title')}
         </h3>
 
         <p className='text-muted-foreground mb-6 max-w-md leading-relaxed'>
-          Start documenting your journey! Create your first chronological record
-          to begin building your personal timeline.
+          {t('description')}
         </p>
 
         <Button
@@ -35,12 +36,11 @@ export default function TimeLineEmptyState() {
           className='bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white shadow-lg hover:shadow-xl transition-all duration-200'
         >
           <Plus className='w-5 h-5 mr-2' />
-          Create First Record
+          {t('ctaText')}
         </Button>
 
         <div className='mt-8 text-xs text-muted-foreground/70'>
-          💡 Tip: Records can include meetings, milestones, learnings, or any
-          moment worth remembering
+          {t('tip')}
         </div>
       </div>
       {isModalOpen && (

@@ -2,6 +2,7 @@ import { Header } from '@/components/header'
 import { FiltersBar } from '@/modules/timeline/components/filters-bar'
 import { TimelineView } from '@/modules/timeline/components/timeline-view'
 import TimelineViewHeader from '@/modules/timeline/components/timeline-view-header'
+import { getTranslations } from 'next-intl/server'
 
 type PageProps = {
   searchParams: Promise<{ from?: string; to?: string; search?: string }>
@@ -9,6 +10,7 @@ type PageProps = {
 
 export default async function HomePage({ searchParams }: PageProps) {
   const filterParams = await searchParams
+  const t = await getTranslations('timeline')
 
   return (
     <div className='min-h-screen bg-background'>
@@ -18,10 +20,10 @@ export default async function HomePage({ searchParams }: PageProps) {
           <div className='flex items-center justify-between'>
             <div>
               <h1 className='text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent'>
-                Timeline
+                {t('title')}
               </h1>
               <p className='text-muted-foreground'>
-                Manage your chronological records
+                {t('subtitle')}
               </p>
             </div>
           </div>

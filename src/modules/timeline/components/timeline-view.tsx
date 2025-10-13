@@ -5,6 +5,8 @@ import TimeLineEmptyState from './timeline-empty-state'
 import { differenceInDays, differenceInMonths, differenceInWeeks, differenceInYears, format, parseISO } from 'date-fns'
 import { Calendar } from 'lucide-react'
 import { auth } from '@clerk/nextjs/server'
+import { getTranslations, getLocale } from 'next-intl/server'
+import { getDateFnsLocale } from '@/lib/dateFnsLocales'
 
 type Props = {
   filterParams: {
@@ -17,6 +19,8 @@ type Props = {
 export async function TimelineView({ filterParams }: Props) {
   const supabase = await createServerClient()
   const { userId } = await auth()
+  const t = await getTranslations('timeline.activity')
+  const dateLocale = await getDateFnsLocale()
 
   let query = supabase.from('records').select('*')
 
@@ -57,15 +61,15 @@ export async function TimelineView({ filterParams }: Props) {
     const years = differenceInYears(normalizedNewerDate, normalizedOlderDate)
 
     if (years > 0) {
-      return years === 1 ? '1 año' : `${years} años`
+      return t('timeDifference.years', { count: years })
     } else if (months > 0) {
-      return months === 1 ? '1 mes' : `${months} meses`
-    } else if (weeks > 2) {
-      return weeks === 1 ? '1 semana' : `${weeks} semanas`
+      return t('timeDifference.months', { count: months })
+    } else if (weeks > 0) {
+      return t('timeDifference.weeks', { count: weeks })
     } else if (days > 0) {
-      return days === 1 ? '1 día' : `${days} días`
+      return t('timeDifference.days', { count: days })
     } else {
-      return 'Mismo día'
+      return t('timeDifference.sameDay')
     }
   }
 
@@ -88,8 +92,8 @@ export async function TimelineView({ filterParams }: Props) {
                         <div className='relative z-10 flex h-6 w-6 items-center justify-center rounded-full bg-primary'>
                           <div className='h-2 w-2 rounded-full bg-primary-foreground'></div>
                         </div>
-                        <h3 className='text-lg font-medium text-foreground'>
-                          {format(parseISO(date), 'MMMM dd, yyyy')}
+                        <h3 className='text-lg font-medium text-foreground capitalize'>
+                          {format(parseISO(date), 'MMMM dd, yyyy', { locale: dateLocale })}
                         </h3>
                       </div>
 
