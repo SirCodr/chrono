@@ -5,7 +5,7 @@ import TimeLineEmptyState from './timeline-empty-state'
 import { differenceInDays, differenceInMonths, differenceInWeeks, differenceInYears, format, parseISO } from 'date-fns'
 import { Calendar } from 'lucide-react'
 import { auth } from '@clerk/nextjs/server'
-import { getTranslations, getLocale } from 'next-intl/server'
+import { getTranslations } from 'next-intl/server'
 import { getDateFnsLocale } from '@/lib/dateFnsLocales'
 
 type Props = {

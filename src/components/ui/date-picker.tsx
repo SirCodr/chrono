@@ -12,7 +12,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { useLocale, useTranslations } from "next-intl"
+import { useTranslations } from "next-intl"
 import { useDateFnsLocale } from "@/hooks/useDateFnsLocale"
 
 type DatePickerProps = {

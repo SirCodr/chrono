@@ -1,14 +1,6 @@
 "use client"
 
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-} from "@/components/ui/navigation-menu"
-import { Clock, Calendar } from "lucide-react"
+import { Clock } from "lucide-react"
 import Link from "next/link"
 import { UserButton } from "@clerk/nextjs"
 

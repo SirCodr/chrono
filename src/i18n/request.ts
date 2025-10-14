@@ -10,7 +10,7 @@ export default getRequestConfig(async () => {
     const acceptLanguage = requestHeaders.get('accept-language');
     if (acceptLanguage) {
       const preferred = acceptLanguage.split(',')[0].split('-')[0];
-      if (SUPPORTED_LOCALES.includes(preferred as any)) {
+      if (SUPPORTED_LOCALES.includes(preferred as (typeof SUPPORTED_LOCALES)[number])) {
         locale = preferred as (typeof SUPPORTED_LOCALES)[number];
       }
     }

@@ -52,7 +52,7 @@ function DeleteDialog({
   id: string
 }) {
   const t = useTranslations()
-  const [_, formAction, isPending] = useActionState(
+  const [, formAction, isPending] = useActionState(
     async (_: unknown, payload: string) => await deletePost(payload),
     {
       success: false,
@@ -97,6 +97,7 @@ export function TimelineItem({ record }: TimelineItemProps) {
               <CardTitle className='text-lg'>{record.title}</CardTitle>
               <CardDescription className='flex items-center gap-2'>
                 <Badge variant='secondary' className='text-xs'>
+                  {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                   {t(`timeline.categories.${record.category}` as any)}
                 </Badge>
               </CardDescription>
