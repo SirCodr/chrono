@@ -12,9 +12,9 @@ const messages = {
       searching: "Buscando..."
     },
     activity: {
-      title: "Actividad Reciente",
+      title: "Actividad reciente",
       daysAgo: "Hace {count} días",
-      addRecord: "Agregar Registro",
+      addRecord: "Agregar registro",
       timeDifference: {
         years: "{count, plural, 1 {# año} other {# años}}",
         months: "{count, plural, 1 {# mes} other {# meses}}",
@@ -39,12 +39,12 @@ const messages = {
       confirmDeleteTitle: "¿Estás seguro?",
       confirmDeleteDescription: "Esta acción no se puede deshacer. Esto eliminará permanentemente tu registro.",
       errors: {
-        invalidId: "Invalid ID",
-        idRequired: "ID is required",
-        titleRequired: "Title is required",
-        categoryRequired: "Category is required",
-        dateInvalid: "Invalid date",
-        serverError: "Server error"
+        invalidId: "ID no válido",
+        idRequired: "El ID es obligatorio",
+        titleRequired: "El título es obligatorio",
+        categoryRequired: "La categoría es obligatoria",
+        dateInvalid: "Fecha no válida",
+        serverError: "Error del servidor"
       }
     },
     categories: {
@@ -60,12 +60,12 @@ const messages = {
       Transport: "Transporte",
       Work: "Trabajo"
     },
-    emptyState:  {
-      title: "Your timeline awaits",
-      description: "Start documenting your journey! Create your first chronological record to begin building your personal timeline.",
-      createFirstRecord: "Create First Record",
-      tip: "💡 Tip: Records can include meetings, milestones, learnings, or any moment worth remembering",
-      ctaText: "Create First Record"
+    emptyState: {
+      title: "Tu línea del tiempo te espera",
+      description: "¡Comienza a documentar tu historia! Crea tu primer registro cronológico para empezar a construir tu línea del tiempo personal.",
+      createFirstRecord: "Crear primer registro",
+      tip: "💡 Consejo: Los registros pueden incluir reuniones, logros, aprendizajes o cualquier momento que valga la pena recordar.",
+      ctaText: "Crear primer registro"
     }
   },
   forms: {
@@ -73,7 +73,7 @@ const messages = {
       header: "Agregar Nuevo {item}",
       subheader: "Completa los detalles abajo para agregar un nuevo {item}.",
       ctaText: "Agregar {item}",
-      ctaLoadingText: "Agregando {item}...",
+      ctaLoadingText: "Agregando {item}..."
     },
     edit: {
       header: "Editar {item}",
@@ -92,7 +92,7 @@ const messages = {
       placeholder: "Buscar"
     },
     loading: "Cargando...",
-    error: "Ocurrió un error. Por favor intenta de nuevo.",
+    error: "Ocurrió un error. Por favor, intenta de nuevo.",
     noData: "No hay datos disponibles."
   },
   common: {
@@ -107,8 +107,8 @@ const messages = {
     continue: "Continuar"
   },
   datepicker: {
-    pickDate: "Selecciona una fecha",
+    pickDate: "Selecciona una fecha"
   }
-}
+};
 
 export default messages;

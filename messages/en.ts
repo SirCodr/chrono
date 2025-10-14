@@ -37,7 +37,7 @@ const messages = {
       saveCategory: "Save Category",
       addRecord: "Add Record",
       confirmDeleteTitle: "Are you sure?",
-      confirmDeleteDescription: "Esta acción no se puede deshacer. Esto eliminará permanentemente tu registro.",
+      confirmDeleteDescription: "This action cannot be undone. This will permanently delete your record.",
       errors: {
         invalidId: "Invalid ID",
         idRequired: "ID is required",
