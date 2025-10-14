@@ -37,11 +37,16 @@ type ActionState = {
   }
 }
 
-function CategoryOptions({ categories }: { categories: string[] }) {
+type CategoriesType = {
+  label: string
+  value: string
+}
+
+function CategoryOptions({ categories }: { categories: CategoriesType[] }) {
   return (
-    categories.map((category) => (
-      <SelectItem key={category} value={category}>
-        {category.charAt(0).toUpperCase() + category.slice(1)}
+    categories.map(({ label, value }) => (
+      <SelectItem key={value} value={value}>
+        {label.charAt(0).toUpperCase() + label.slice(1)}
       </SelectItem>
     ))
   )
@@ -75,23 +80,24 @@ export function RecordForm({ record, open, onOpenChange, onSuccess }: RecordModa
     values: {
       title: record?.title || '',
       description: record?.description || '',
-      category: record?.category ? t(`timeline.categories.${record.category}` as any) : '',
+      category: record?.category ||'',
       date: record?.date || ''
     }
   }
-  const categories = useMemo<string[]>(() => [
-    t('timeline.categories.Education'),
-    t('timeline.categories.Entertainment'),
-    t('timeline.categories.Finance'),
-    t('timeline.categories.Food'),
-    t('timeline.categories.Health'),
-    t('timeline.categories.Home'),
-    t('timeline.categories.Personal'),
-    t('timeline.categories.Shopping'),
-    t('timeline.categories.Social'),
-    t('timeline.categories.Transport'),
-    t('timeline.categories.Work')
-  ], []);
+  const categories = useMemo<CategoriesType[]>(() => [
+    { label: t('timeline.categories.Education'), value: 'Education' },
+    { label: t('timeline.categories.Entertainment'), value: 'Entertainment' },
+    { label: t('timeline.categories.Finance'), value: 'Finance' },
+    { label: t('timeline.categories.Food'), value: 'Food' },
+    { label: t('timeline.categories.Health'), value: 'Health' },
+    { label: t('timeline.categories.Home'), value: 'Home' },
+    { label: t('timeline.categories.Personal'), value: 'Personal' },
+    { label: t('timeline.categories.Shopping'), value: 'Shopping' },
+    { label: t('timeline.categories.Social'), value: 'Social' },
+    { label: t('timeline.categories.Transport'), value: 'Transport' },
+    { label: t('timeline.categories.Work'), value: 'Work' }
+  ], [t]);
+
   const [category, setCategory] = useState<string>(initialState.values.category)
   const [date, setDate] = useState<Date | undefined>(
     initialState.values.date ? new Date(initialState.values.date) : new Date()
