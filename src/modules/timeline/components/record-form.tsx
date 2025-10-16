@@ -12,7 +12,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { createPost, editPost } from "../actions"
+import { createPost, editPost } from "@/app/(protected)/timeline/actions"
 import { useActionState, useEffect, useMemo, useState } from "react"
 import { DatePicker } from "@/components/ui/date-picker"
 import { dateToTimestamptz } from "@/lib/utils"

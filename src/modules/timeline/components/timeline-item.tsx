@@ -29,7 +29,7 @@ import {
   AlertDialogCancel,
 } from '@/components/ui/alert-dialog'
 import { useActionState, useState } from 'react'
-import { deletePost } from '../actions'
+import { deletePost } from '@/app/(protected)/timeline/actions'
 import { RecordForm } from './record-form'
 import { useTranslations } from 'next-intl'
 

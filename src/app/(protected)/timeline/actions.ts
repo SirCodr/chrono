@@ -6,22 +6,16 @@ import { getTranslations } from 'next-intl/server'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 
-const t = await getTranslations('timeline.form.errors')
-
-const postCreationSchema = z.object({
-  title: z.string().min(1, t('titleRequired')),
-  description: z.string().optional(),
-  category: z.string().min(1, t('categoryRequired')),
-  date: z.coerce.date({ error: t('dateInvalid') })
-})
-
-const editCreationSchema = postCreationSchema.extend({
-  id: z.string().uuid(t('invalidId'))
-})
-
-const idSchema = z.string().min(1, t('idRequired')).uuid(t('invalidId'))
-
 export async function createPost(data: FormData) {
+  const t = await getTranslations('timeline.form.errors')
+
+  const postCreationSchema = z.object({
+    title: z.string().min(1, t('titleRequired')),
+    description: z.string().optional(),
+    category: z.string().min(1, t('categoryRequired')),
+    date: z.coerce.date({ error: t('dateInvalid') })
+  })
+
   const values = {
     title: data.get('title') as string,
     description: data.get('description') as string,
@@ -61,6 +55,15 @@ export async function createPost(data: FormData) {
 }
 
 export async function editPost(data: FormData) {
+  const t = await getTranslations('timeline.form.errors')
+  const editCreationSchema = z.object({
+    id: z.string().uuid(t('invalidId')),
+    title: z.string().min(1, t('titleRequired')),
+    description: z.string().optional(),
+    category: z.string().min(1, t('categoryRequired')),
+    date: z.coerce.date({ error: t('dateInvalid') })
+  })
+
   const values = {
     id: data.get('id') as string,
     title: data.get('title') as string,
@@ -102,6 +105,9 @@ export async function editPost(data: FormData) {
 }
 
 export async function deletePost(id: string) {
+  const t = await getTranslations('timeline.form.errors')
+  const idSchema = z.string().min(1, t('idRequired')).uuid(t('invalidId'))
+
   try {
     const parsedData = idSchema.safeParse(id)
 
