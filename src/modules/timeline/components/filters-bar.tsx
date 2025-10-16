@@ -3,14 +3,16 @@
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Filter, Search, SearchIcon } from "lucide-react"
+import { ChevronDown, ChevronUp, Filter, Search, SearchIcon } from "lucide-react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { cn, dateToTimestamptz } from "@/lib/utils"
 import { useEffect, useState, useTransition } from "react"
 import { DatePicker } from "@/components/ui/date-picker"
 import { useTranslations } from "next-intl"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 
 export function FiltersBar() {
+  const [isContentCollapsed, setContentCollapsed] = useState<boolean>(true)
   const [ isPending, startTransition ] = useTransition()
   const searchParams = useSearchParams()
   const pathname = usePathname()
@@ -57,9 +59,9 @@ export function FiltersBar() {
   }, [searchParams])
 
   return (
-    <>
+    <Collapsible open={isContentCollapsed} onOpenChange={setContentCollapsed} className="flex flex-col gap-y-4">
       <div className='flex items-center justify-between'>
-        <div className='flex items-center gap-2'>
+        <CollapsibleTrigger className='flex items-center gap-2 cursor-pointer group' >
           <div className='flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500 to-orange-600 shadow-sm'>
             <Filter className='h-4 w-4 text-white' />
           </div>
@@ -69,7 +71,10 @@ export function FiltersBar() {
               {[search, fromDate, toDate].filter(Boolean).length}
             </div>
           )}
-        </div>
+          <div className="ml-2 text-muted-foreground group-hover:text-orange-600 transition-colors">
+            {isContentCollapsed ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+          </div>
+        </CollapsibleTrigger>
         {hasActiveFilters && (
           <Button
             variant='ghost'
@@ -82,7 +87,7 @@ export function FiltersBar() {
         )}
       </div>
 
-      <div className='flex flex-col sm:flex-row gap-4 p-6 bg-gradient-to-r from-background to-muted/20 rounded-xl border border-border/50 shadow-sm'>
+      <CollapsibleContent className='flex flex-col sm:flex-row gap-4 p-6 bg-gradient-to-r from-background to-muted/20 rounded-xl border border-border/50 shadow-sm'>
         <form className='flex-1' onSubmit={handleSubmit} >
           <Label htmlFor='search' className='sr-only'>
             {tSearch('placeholder')}
@@ -131,7 +136,7 @@ export function FiltersBar() {
             <span>{isPending ? t('searching') : t('search')}</span>
           </Button>
         </div>
-      </div>
-    </>
+      </CollapsibleContent>
+    </Collapsible>
   )
 }
