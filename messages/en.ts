@@ -16,10 +16,10 @@ const messages = {
       daysAgo: "{count} days",
       addRecord: "Add Record",
       timeDifference: {
-        years: "{count, plural, 1 {# year} other {# years}}",
-        months: "{count, plural, 1 {# month} other {# months}}",
-        weeks: "{count, plural, 1 {# week} other {# weeks}}",
-        days: "{count, plural, 1 {# day} other {# days}}",
+        years: "{count, plural, =1 {# year} other {# years}}",
+        months: "{count, plural, =1 {# month} other {# months}}",
+        weeks: "{count, plural, =1 {# week} other {# weeks}}",
+        days: "{count, plural, =1 {# day} other {# days}}",
         sameDay: "Same day"
       }
     },
