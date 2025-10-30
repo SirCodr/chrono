@@ -1,23 +1,29 @@
-"use client"
+'use client'
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { createPost, editPost } from "@/app/(protected)/timeline/actions"
-import { useActionState, useEffect, useMemo, useState } from "react"
-import { DatePicker } from "@/components/ui/date-picker"
-import { dateToTimestamptz } from "@/lib/utils"
-import { Tables } from "@/lib/supabase/database.types"
-import { useTranslations } from "next-intl"
+  DialogTitle
+} from '@/components/ui/dialog'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
+import { createPost, editPost } from '@/app/(protected)/timeline/actions'
+import { useActionState, useEffect, useMemo, useState } from 'react'
+import { DatePicker } from '@/components/ui/date-picker'
+import { Tables } from '@/lib/supabase/database.types'
+import { useTranslations } from 'next-intl'
+import { dateToTimestamptz } from '@/lib/date-handle'
 
 interface RecordModalProps {
   open: boolean
@@ -43,36 +49,47 @@ type CategoriesType = {
 }
 
 function CategoryOptions({ categories }: { categories: CategoriesType[] }) {
-  return (
-    categories.map(({ label, value }) => (
-      <SelectItem key={value} value={value}>
-        {label.charAt(0).toUpperCase() + label.slice(1)}
-      </SelectItem>
-    ))
-  )
+  return categories.map(({ label, value }) => (
+    <SelectItem key={value} value={value}>
+      {label.charAt(0).toUpperCase() + label.slice(1)}
+    </SelectItem>
+  ))
 }
 
-function SubmitButton({ isEditMode, isLoading } : { isEditMode: boolean, isLoading: boolean }) {
+function SubmitButton({
+  isEditMode,
+  isLoading
+}: {
+  isEditMode: boolean
+  isLoading: boolean
+}) {
   const t = useTranslations()
 
   const text = () => {
-    if (isEditMode && isLoading) return t('forms.edit.ctaLoadingText', { item: t('common.record') })
+    if (isEditMode && isLoading)
+      return t('forms.edit.ctaLoadingText', { item: t('common.record') })
 
     if (isEditMode && !isLoading) return t('forms.edit.ctaText')
 
-    if (!isEditMode && isLoading) return t('forms.add.ctaLoadingText', { item: t('common.record') })
+    if (!isEditMode && isLoading)
+      return t('forms.add.ctaLoadingText', { item: t('common.record') })
 
     return t('forms.add.ctaText', { item: t('common.record') })
   }
 
   return (
-    <Button type="submit" disabled={isLoading}>
+    <Button type='submit' disabled={isLoading}>
       {text()}
     </Button>
   )
 }
 
-export function RecordForm({ record, open, onOpenChange, onSuccess }: RecordModalProps) {
+export function RecordForm({
+  record,
+  open,
+  onOpenChange,
+  onSuccess
+}: RecordModalProps) {
   const t = useTranslations()
   const initialState: ActionState = {
     success: false,
@@ -80,36 +97,40 @@ export function RecordForm({ record, open, onOpenChange, onSuccess }: RecordModa
     values: {
       title: record?.title || '',
       description: record?.description || '',
-      category: record?.category ||'',
+      category: record?.category || '',
       date: record?.date || ''
     }
   }
-  const categories = useMemo<CategoriesType[]>(() => [
-    { label: t('timeline.categories.Education'), value: 'Education' },
-    { label: t('timeline.categories.Entertainment'), value: 'Entertainment' },
-    { label: t('timeline.categories.Finance'), value: 'Finance' },
-    { label: t('timeline.categories.Food'), value: 'Food' },
-    { label: t('timeline.categories.Health'), value: 'Health' },
-    { label: t('timeline.categories.Home'), value: 'Home' },
-    { label: t('timeline.categories.Personal'), value: 'Personal' },
-    { label: t('timeline.categories.Shopping'), value: 'Shopping' },
-    { label: t('timeline.categories.Social'), value: 'Social' },
-    { label: t('timeline.categories.Transport'), value: 'Transport' },
-    { label: t('timeline.categories.Work'), value: 'Work' }
-  ], [t]);
+  const categories = useMemo<CategoriesType[]>(
+    () => [
+      { label: t('timeline.categories.Education'), value: 'Education' },
+      { label: t('timeline.categories.Entertainment'), value: 'Entertainment' },
+      { label: t('timeline.categories.Finance'), value: 'Finance' },
+      { label: t('timeline.categories.Food'), value: 'Food' },
+      { label: t('timeline.categories.Health'), value: 'Health' },
+      { label: t('timeline.categories.Home'), value: 'Home' },
+      { label: t('timeline.categories.Personal'), value: 'Personal' },
+      { label: t('timeline.categories.Shopping'), value: 'Shopping' },
+      { label: t('timeline.categories.Social'), value: 'Social' },
+      { label: t('timeline.categories.Transport'), value: 'Transport' },
+      { label: t('timeline.categories.Work'), value: 'Work' }
+    ],
+    [t]
+  )
 
   const [category, setCategory] = useState<string>(initialState.values.category)
   const [date, setDate] = useState<Date | undefined>(
     initialState.values.date ? new Date(initialState.values.date) : new Date()
   )
   const [state, formAction, isPending] = useActionState(
-    async (_: unknown, payload: FormData) => record ? await editPost(payload) : await createPost(payload),
+    async (_: unknown, payload: FormData) =>
+      record ? await editPost(payload) : await createPost(payload),
     initialState
   )
 
   useEffect(() => {
     if (state.success && onSuccess) {
-      onSuccess();
+      onSuccess()
     }
   }, [state.success, onSuccess])
 
@@ -118,9 +139,11 @@ export function RecordForm({ record, open, onOpenChange, onSuccess }: RecordModa
       <DialogContent className='sm:max-w-[525px]'>
         <DialogHeader>
           <DialogTitle>
-            {record ? t('forms.edit.header', { item: t('common.record') }) : t('forms.add.header', { item: t('common.record') })}
+            {record
+              ? t('forms.edit.header', { item: t('common.record') })
+              : t('forms.add.header', { item: t('common.record') })}
           </DialogTitle>
-          <DialogDescription className="subheader-text">
+          <DialogDescription className='subheader-text'>
             {record
               ? t('forms.edit.subheader', { item: t('common.record') })
               : t('forms.add.subheader', { item: t('common.record') })}
@@ -147,7 +170,9 @@ export function RecordForm({ record, open, onOpenChange, onSuccess }: RecordModa
             </div>
 
             <div className='space-y-2'>
-              <Label htmlFor='description'>{t('timeline.form.description')}</Label>
+              <Label htmlFor='description'>
+                {t('timeline.form.description')}
+              </Label>
               <Input
                 id='description'
                 name='description'
@@ -171,7 +196,9 @@ export function RecordForm({ record, open, onOpenChange, onSuccess }: RecordModa
                 onValueChange={(value) => setCategory(value)}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder={t('timeline.form.categoryPlaceholder')} />
+                  <SelectValue
+                    placeholder={t('timeline.form.categoryPlaceholder')}
+                  />
                 </SelectTrigger>
                 <SelectContent>
                   <CategoryOptions categories={categories} />

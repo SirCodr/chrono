@@ -1,29 +1,43 @@
-"use client"
+'use client'
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { ChevronDown, ChevronUp, Filter, Search, SearchIcon } from "lucide-react"
-import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { cn, dateToTimestamptz } from "@/lib/utils"
-import { useEffect, useState, useTransition } from "react"
-import { DatePicker } from "@/components/ui/date-picker"
-import { useTranslations } from "next-intl"
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  ChevronDown,
+  ChevronUp,
+  Filter,
+  Search,
+  SearchIcon
+} from 'lucide-react'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { cn } from '@/lib/utils'
+import { useEffect, useState, useTransition } from 'react'
+import { DatePicker } from '@/components/ui/date-picker'
+import { useTranslations } from 'next-intl'
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger
+} from '@/components/ui/collapsible'
+import { dateToTimestamptz } from '@/lib/date-handle'
 
 export function FiltersBar() {
   const [isContentCollapsed, setContentCollapsed] = useState<boolean>(true)
-  const [ isPending, startTransition ] = useTransition()
+  const [isPending, startTransition] = useTransition()
   const searchParams = useSearchParams()
   const pathname = usePathname()
   const { replace } = useRouter()
   const t = useTranslations('timeline.filters')
   const tSearch = useTranslations('forms.search')
 
-  const [fromDate, setFromDate] = useState<Date | undefined>(searchParams.has("from") ? new Date(searchParams.get("from")!) : undefined)
-  const [toDate, setToDate] = useState<Date | undefined>(searchParams.has("to") ? new Date(searchParams.get("to")!) : undefined)
-  const [ search, setSearch ] = useState(searchParams.get("search") || "")
-
+  const [fromDate, setFromDate] = useState<Date | undefined>(
+    searchParams.has('from') ? new Date(searchParams.get('from')!) : undefined
+  )
+  const [toDate, setToDate] = useState<Date | undefined>(
+    searchParams.has('to') ? new Date(searchParams.get('to')!) : undefined
+  )
+  const [search, setSearch] = useState(searchParams.get('search') || '')
 
   const clearFilters = () => {
     startTransition(() => {
@@ -31,14 +45,17 @@ export function FiltersBar() {
     })
   }
 
-  const hasActiveFilters = searchParams.has("search") || searchParams.has("from") || searchParams.has("to")
+  const hasActiveFilters =
+    searchParams.has('search') ||
+    searchParams.has('from') ||
+    searchParams.has('to')
 
   function submitSearch() {
     startTransition(() => {
       const params = new URLSearchParams()
-      if (search) params.set("search", search)
-      if (fromDate) params.set("from", dateToTimestamptz(fromDate))
-      if (toDate) params.set("to", dateToTimestamptz(toDate))
+      if (search) params.set('search', search)
+      if (fromDate) params.set('from', dateToTimestamptz(fromDate))
+      if (toDate) params.set('to', dateToTimestamptz(toDate))
 
       const queryString = params.toString()
       const url = queryString ? `${pathname}?${queryString}` : pathname
@@ -53,15 +70,23 @@ export function FiltersBar() {
   }
 
   useEffect(() => {
-    setSearch(searchParams.get("search") || "")
-    setFromDate(searchParams.has("from") ? new Date(searchParams.get("from")!) : undefined)
-    setToDate(searchParams.has("to") ? new Date(searchParams.get("to")!) : undefined)
+    setSearch(searchParams.get('search') || '')
+    setFromDate(
+      searchParams.has('from') ? new Date(searchParams.get('from')!) : undefined
+    )
+    setToDate(
+      searchParams.has('to') ? new Date(searchParams.get('to')!) : undefined
+    )
   }, [searchParams])
 
   return (
-    <Collapsible open={isContentCollapsed} onOpenChange={setContentCollapsed} className="flex flex-col gap-y-4">
+    <Collapsible
+      open={isContentCollapsed}
+      onOpenChange={setContentCollapsed}
+      className='flex flex-col gap-y-4'
+    >
       <div className='flex items-center justify-between'>
-        <CollapsibleTrigger className='flex items-center gap-2 cursor-pointer group' >
+        <CollapsibleTrigger className='flex items-center gap-2 cursor-pointer group'>
           <div className='flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500 to-orange-600 shadow-sm'>
             <Filter className='h-4 w-4 text-white' />
           </div>
@@ -71,8 +96,12 @@ export function FiltersBar() {
               {[search, fromDate, toDate].filter(Boolean).length}
             </div>
           )}
-          <div className="ml-2 text-muted-foreground group-hover:text-orange-600 transition-colors">
-            {isContentCollapsed ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+          <div className='ml-2 text-muted-foreground group-hover:text-orange-600 transition-colors'>
+            {isContentCollapsed ? (
+              <ChevronUp className='h-4 w-4' />
+            ) : (
+              <ChevronDown className='h-4 w-4' />
+            )}
           </div>
         </CollapsibleTrigger>
         {hasActiveFilters && (
@@ -88,7 +117,7 @@ export function FiltersBar() {
       </div>
 
       <CollapsibleContent className='flex flex-col sm:flex-row gap-4 p-6 bg-gradient-to-r from-background to-muted/20 rounded-xl border border-border/50 shadow-sm'>
-        <form className='flex-1' onSubmit={handleSubmit} >
+        <form className='flex-1' onSubmit={handleSubmit}>
           <Label htmlFor='search' className='sr-only'>
             {tSearch('placeholder')}
           </Label>
