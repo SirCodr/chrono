@@ -1,9 +1,11 @@
 import { Clock } from 'lucide-react'
 import { format } from 'date-fns'
 import { getDateFnsLocale } from '@/lib/dateFnsLocales'
+import { getTranslations } from 'next-intl/server'
 
 export async function TimelineTodayMarker() {
   const dateLocale = await getDateFnsLocale()
+  const t = await getTranslations('timeline.activity')
   const today = new Date()
 
   return (
@@ -16,7 +18,7 @@ export async function TimelineTodayMarker() {
           {format(today, 'MMMM dd, yyyy', { locale: dateLocale })}
         </h3>
         <span className='text-sm font-medium px-3 py-1 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-md'>
-          Hoy
+          {t('today')}
         </span>
       </div>
     </div>
