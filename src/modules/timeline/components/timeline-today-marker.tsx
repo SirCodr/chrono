@@ -1,11 +1,13 @@
+'use client'
+
 import { Clock } from 'lucide-react'
 import { format } from 'date-fns'
-import { getDateFnsLocale } from '@/lib/dateFnsLocales'
-import { getTranslations } from 'next-intl/server'
+import { useDateFnsLocale } from '@/hooks/useDateFnsLocale'
+import { useTranslations } from 'next-intl'
 
-export async function TimelineTodayMarker() {
-  const dateLocale = await getDateFnsLocale()
-  const t = await getTranslations('timeline.activity')
+export function TimelineTodayMarker() {
+  const dateLocale = useDateFnsLocale()
+  const t = useTranslations('timeline.activity')
   const today = new Date()
 
   return (

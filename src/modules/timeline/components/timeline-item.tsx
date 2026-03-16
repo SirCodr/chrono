@@ -5,7 +5,7 @@ import {
   CardContent,
   CardDescription,
   CardHeader,
-  CardTitle
+  CardTitle,
 } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -14,12 +14,12 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Tables } from '@/lib/supabase/database.types'
+import type { Record, RecordUpdate } from '@/types/record'
 import {
   AlertDialogHeader,
-  AlertDialogFooter
+  AlertDialogFooter,
 } from '@/components/ui/alert-dialog'
 import {
   AlertDialog,
@@ -28,63 +28,76 @@ import {
   AlertDialogDescription,
   AlertDialogCancel,
 } from '@/components/ui/alert-dialog'
-import { useActionState, useState } from 'react'
-import { deletePost } from '@/app/(protected)/timeline/actions'
+import { useState } from 'react'
 import { RecordForm } from './record-form'
 import { useTranslations } from 'next-intl'
+import { toast } from 'sonner'
 
 const MODALS = {
   EDIT: 'edit',
-  DELETE: 'delete'
+  DELETE: 'delete',
 }
 
 interface TimelineItemProps {
-  record: Tables<'records'>
+  record: Record
+  onUpdate: (data: RecordUpdate) => Promise<Record>
+  onDelete: (id: string) => Promise<void>
 }
 
 function DeleteDialog({
   open,
   setOpen,
-  id
+  id,
+  onDelete,
 }: {
   open: boolean
   setOpen: (open: boolean) => void
   id: string
+  onDelete: (id: string) => Promise<void>
 }) {
   const t = useTranslations()
-  const [, formAction, isPending] = useActionState(
-    async (_: unknown, payload: string) => await deletePost(payload),
-    {
-      success: false,
-      error: {},
-      id: ''
+  const [isPending, setIsPending] = useState(false)
+
+  const handleDelete = async () => {
+    setIsPending(true)
+    try {
+      await onDelete(id)
+      setOpen(false)
+    } catch (error) {
+      console.error('Error deleting record', error)
+      toast.error(t('timeline.form.errors.serverError'))
+    } finally {
+      setIsPending(false)
     }
-  )
+  }
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogContent>
-        <form action={() => formAction(id)}>
-          <input type='hidden' name='id' value={id} />
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t('timeline.form.confirmDeleteTitle')}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {t('timeline.form.confirmDeleteDescription')}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
-              <Button type='submit' disabled={isPending} variant='outline' className='text-white bg-destructive hover:bg-destructive/90 hover:text-white'>
-              {isPending ? t('forms.delete.ctaLoadingTextNoItem') : t('common.continue')}
-            </Button>
-          </AlertDialogFooter>
-        </form>
+        <AlertDialogHeader>
+          <AlertDialogTitle>{t('timeline.form.confirmDeleteTitle')}</AlertDialogTitle>
+          <AlertDialogDescription>
+            {t('timeline.form.confirmDeleteDescription')}
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
+          <Button
+            type='button'
+            disabled={isPending}
+            variant='outline'
+            className='text-white bg-destructive hover:bg-destructive/90 hover:text-white'
+            onClick={handleDelete}
+          >
+            {isPending ? t('forms.delete.ctaLoadingTextNoItem') : t('common.continue')}
+          </Button>
+        </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
   )
 }
 
-export function TimelineItem({ record }: TimelineItemProps) {
+export function TimelineItem({ record, onUpdate, onDelete }: TimelineItemProps) {
   const t = useTranslations()
   const [currentModal, setCurrentModal] = useState<typeof MODALS[keyof typeof MODALS] | null>(null)
 
@@ -109,9 +122,7 @@ export function TimelineItem({ record }: TimelineItemProps) {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align='end'>
-                <DropdownMenuItem
-                  onClick={() => setCurrentModal(MODALS.EDIT)}
-                >
+                <DropdownMenuItem onClick={() => setCurrentModal(MODALS.EDIT)}>
                   <Edit className='mr-2 h-4 w-4' />
                   {t('common.edit')}
                 </DropdownMenuItem>
@@ -127,18 +138,7 @@ export function TimelineItem({ record }: TimelineItemProps) {
           </div>
         </CardHeader>
         <CardContent>
-          <p className='text-sm text-muted-foreground mb-3'>
-            {record.description}
-          </p>
-          {/* {record.tags.length > 0 && (
-            <div className="flex flex-wrap gap-1">
-              {record.tags.map((tag) => (
-                <Badge key={tag} variant="outline" className="text-xs">
-                  {tag}
-                </Badge>
-              ))}
-            </div>
-          )} */}
+          <p className='text-sm text-muted-foreground mb-3'>{record.description}</p>
         </CardContent>
       </Card>
 
@@ -146,26 +146,26 @@ export function TimelineItem({ record }: TimelineItemProps) {
         <RecordForm
           key={MODALS.EDIT + record.id}
           open={true}
-          onOpenChange={(isOpen: boolean) => {
+          onOpenChange={(isOpen) => {
             if (isOpen) setCurrentModal(MODALS.EDIT)
             else setCurrentModal(null)
           }}
           onSuccess={() => setCurrentModal(null)}
           record={record}
+          onUpdate={onUpdate}
         />
       )}
-      {
-        currentModal === MODALS.DELETE && (
-          <DeleteDialog
-            open={true}
-            setOpen={(isOpen: boolean) => {
-              if (isOpen) setCurrentModal(MODALS.DELETE)
-              else setCurrentModal(null)
-            }}
-            id={record.id}
-          />
-        )
-      }
+      {currentModal === MODALS.DELETE && (
+        <DeleteDialog
+          open={true}
+          setOpen={(isOpen) => {
+            if (isOpen) setCurrentModal(MODALS.DELETE)
+            else setCurrentModal(null)
+          }}
+          id={record.id}
+          onDelete={onDelete}
+        />
+      )}
     </>
   )
 }

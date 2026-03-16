@@ -18,29 +18,28 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
-import { createPost, editPost } from '@/app/(protected)/timeline/actions'
-import { useActionState, useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo } from 'react'
 import { DatePicker } from '@/components/ui/date-picker'
-import { Tables } from '@/lib/supabase/database.types'
+import type { Record, RecordInsert, RecordUpdate } from '@/types/record'
 import { useTranslations } from 'next-intl'
 import { dateToTimestamptz } from '@/lib/date-handle'
+import { useForm, Controller } from 'react-hook-form'
+import { toast } from 'sonner'
 
 interface RecordModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   onSuccess?: () => void
-  record?: Tables<'records'>
+  record?: Record
+  onCreate?: (data: RecordInsert) => Promise<Record>
+  onUpdate?: (data: RecordUpdate) => Promise<Record>
 }
 
-type ActionState = {
-  success: boolean
-  error: Record<string, string[]>
-  values: {
-    title: string
-    description: string
-    category: string
-    date: string
-  }
+type FormValues = {
+  title: string
+  description: string
+  category: string
+  date: Date | undefined
 }
 
 type CategoriesType = {
@@ -56,51 +55,17 @@ function CategoryOptions({ categories }: { categories: CategoriesType[] }) {
   ))
 }
 
-function SubmitButton({
-  isEditMode,
-  isLoading
-}: {
-  isEditMode: boolean
-  isLoading: boolean
-}) {
-  const t = useTranslations()
-
-  const text = () => {
-    if (isEditMode && isLoading)
-      return t('forms.edit.ctaLoadingText', { item: t('common.record') })
-
-    if (isEditMode && !isLoading) return t('forms.edit.ctaText')
-
-    if (!isEditMode && isLoading)
-      return t('forms.add.ctaLoadingText', { item: t('common.record') })
-
-    return t('forms.add.ctaText', { item: t('common.record') })
-  }
-
-  return (
-    <Button type='submit' disabled={isLoading}>
-      {text()}
-    </Button>
-  )
-}
-
 export function RecordForm({
   record,
   open,
   onOpenChange,
-  onSuccess
+  onSuccess,
+  onCreate,
+  onUpdate
 }: RecordModalProps) {
   const t = useTranslations()
-  const initialState: ActionState = {
-    success: false,
-    error: {},
-    values: {
-      title: record?.title || '',
-      description: record?.description || '',
-      category: record?.category || '',
-      date: record?.date || ''
-    }
-  }
+  const isEditMode = Boolean(record)
+
   const categories = useMemo<CategoriesType[]>(
     () => [
       { label: t('timeline.categories.Education'), value: 'Education' },
@@ -118,21 +83,59 @@ export function RecordForm({
     [t]
   )
 
-  const [category, setCategory] = useState<string>(initialState.values.category)
-  const [date, setDate] = useState<Date | undefined>(
-    initialState.values.date ? new Date(initialState.values.date) : new Date()
-  )
-  const [state, formAction, isPending] = useActionState(
-    async (_: unknown, payload: FormData) =>
-      record ? await editPost(payload) : await createPost(payload),
-    initialState
-  )
+  const {
+    register,
+    handleSubmit,
+    control,
+    reset,
+    formState: { errors, isSubmitting }
+  } = useForm<FormValues>({
+    defaultValues: {
+      title: record?.title ?? '',
+      description: record?.description ?? '',
+      category: record?.category ?? '',
+      date: record?.date ? new Date(record.date) : new Date()
+    }
+  })
 
   useEffect(() => {
-    if (state.success && onSuccess) {
-      onSuccess()
+    if (open) {
+      reset({
+        title: record?.title ?? '',
+        description: record?.description ?? '',
+        category: record?.category ?? '',
+        date: record?.date ? new Date(record.date) : new Date()
+      })
     }
-  }, [state.success, onSuccess])
+  }, [open, record, reset])
+
+  const onSubmit = async (values: FormValues) => {
+    if (!values.date) return
+
+    try {
+      if (isEditMode && record && onUpdate) {
+        await onUpdate({
+          id: record.id,
+          title: values.title,
+          description: values.description || null,
+          category: values.category,
+          date: dateToTimestamptz(values.date)
+        })
+      } else if (onCreate) {
+        await onCreate({
+          title: values.title,
+          description: values.description || null,
+          category: values.category,
+          date: dateToTimestamptz(values.date)
+        })
+      }
+      onSuccess?.()
+      onOpenChange(false)
+    } catch (error) {
+      console.error('Error saving record', error)
+      toast.error(t('timeline.form.errors.serverError'))
+    }
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -150,23 +153,20 @@ export function RecordForm({
           </DialogDescription>
         </DialogHeader>
 
-        <form action={formAction}>
+        <form onSubmit={handleSubmit(onSubmit)}>
           <div className='grid gap-4 py-4'>
-            <input type='hidden' name='id' value={record?.id} />
-
             <div className='space-y-2'>
               <Label htmlFor='title'>{t('timeline.form.title')}</Label>
               <Input
                 id='title'
-                name='title'
-                defaultValue={state.values.title}
                 placeholder={t('timeline.form.titlePlaceholder')}
+                {...register('title', {
+                  required: t('timeline.form.errors.titleRequired')
+                })}
               />
-              {typeof state.error === 'object' &&
-                state.error?.title &&
-                !isPending && (
-                  <p className='text-sm text-red-600'>{state.error.title}</p>
-                )}
+              {errors.title && (
+                <p className='text-sm text-red-600'>{errors.title.message}</p>
+              )}
             </div>
 
             <div className='space-y-2'>
@@ -175,62 +175,51 @@ export function RecordForm({
               </Label>
               <Input
                 id='description'
-                name='description'
-                defaultValue={state.values.description}
                 placeholder={t('timeline.form.descriptionPlaceholder')}
+                {...register('description')}
               />
-              {typeof state.error === 'object' &&
-                state.error?.description &&
-                !isPending && (
-                  <p className='text-sm text-red-600'>
-                    {state.error.description}
-                  </p>
-                )}
             </div>
 
             <div className='space-y-2'>
               <Label htmlFor='category'>{t('timeline.form.category')}</Label>
-              <Select
-                value={category}
-                defaultValue={state.values.category}
-                onValueChange={(value) => setCategory(value)}
-              >
-                <SelectTrigger>
-                  <SelectValue
-                    placeholder={t('timeline.form.categoryPlaceholder')}
-                  />
-                </SelectTrigger>
-                <SelectContent>
-                  <CategoryOptions categories={categories} />
-                </SelectContent>
-              </Select>
-              {typeof state.error === 'object' &&
-                state.error?.category &&
-                !isPending && (
-                  <p className='text-sm text-red-600'>{state.error.category}</p>
+              <Controller
+                name='category'
+                control={control}
+                rules={{ required: t('timeline.form.errors.categoryRequired') }}
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger>
+                      <SelectValue
+                        placeholder={t('timeline.form.categoryPlaceholder')}
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <CategoryOptions categories={categories} />
+                    </SelectContent>
+                  </Select>
                 )}
-              <input type='hidden' name='category' value={category} />
+              />
+              {errors.category && (
+                <p className='text-sm text-red-600'>
+                  {errors.category.message}
+                </p>
+              )}
             </div>
 
             <div className='space-y-2'>
-              <Label htmlFor='content'>{t('timeline.form.date')}</Label>
-              <DatePicker value={date} onChange={(value) => setDate(value)} />
-              {typeof state.error === 'object' &&
-                state.error?.date &&
-                !isPending && (
-                  <p className='text-sm text-red-600'>{state.error.date}</p>
-                )}
-              <input
-                type='hidden'
+              <Label htmlFor='date'>{t('timeline.form.date')}</Label>
+              <Controller
                 name='date'
-                value={date ? dateToTimestamptz(date) : undefined}
+                control={control}
+                rules={{ required: t('timeline.form.errors.dateInvalid') }}
+                render={({ field }) => (
+                  <DatePicker value={field.value} onChange={field.onChange} />
+                )}
               />
+              {errors.date && (
+                <p className='text-sm text-red-600'>{errors.date.message}</p>
+              )}
             </div>
-
-            {/* <div className="space-y-2">
-              <Label htmlFor="tags">Tags</Label>
-              <Input id="tags" name="tags" placeholder="Enter tags separated by commas" />
-            </div> */}
           </div>
 
           <DialogFooter>
@@ -241,7 +230,15 @@ export function RecordForm({
             >
               {t('common.cancel')}
             </Button>
-            <SubmitButton isEditMode={Boolean(record)} isLoading={isPending} />
+            <Button type='submit' disabled={isSubmitting}>
+              {isSubmitting
+                ? isEditMode
+                  ? t('forms.edit.ctaLoadingText')
+                  : t('forms.add.ctaLoadingText', { item: t('common.record') })
+                : isEditMode
+                  ? t('forms.edit.ctaText')
+                  : t('forms.add.ctaText', { item: t('common.record') })}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

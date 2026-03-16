@@ -5,8 +5,13 @@ import { Clock, Plus, Sparkles } from 'lucide-react'
 import { useState } from 'react'
 import { RecordForm } from './record-form'
 import { useTranslations } from 'next-intl'
+import type { RecordInsert } from '@/types/record'
 
-export default function TimeLineEmptyState() {
+interface TimeLineEmptyStateProps {
+  onCreate: (data: RecordInsert) => Promise<import('@/types/record').Record>
+}
+
+export default function TimeLineEmptyState({ onCreate }: TimeLineEmptyStateProps) {
   const t = useTranslations('timeline.emptyState')
   const [isModalOpen, setIsModalOpen] = useState(false)
 
@@ -22,9 +27,7 @@ export default function TimeLineEmptyState() {
           </div>
         </div>
 
-        <h3 className='text-2xl font-bold text-foreground mb-2'>
-          {t('title')}
-        </h3>
+        <h3 className='text-2xl font-bold text-foreground mb-2'>{t('title')}</h3>
 
         <p className='text-muted-foreground mb-6 max-w-md leading-relaxed'>
           {t('description')}
@@ -39,15 +42,14 @@ export default function TimeLineEmptyState() {
           {t('ctaText')}
         </Button>
 
-        <div className='mt-8 text-xs text-muted-foreground/70'>
-          {t('tip')}
-        </div>
+        <div className='mt-8 text-xs text-muted-foreground/70'>{t('tip')}</div>
       </div>
       {isModalOpen && (
         <RecordForm
           open={true}
           onOpenChange={setIsModalOpen}
           onSuccess={() => setIsModalOpen(false)}
+          onCreate={onCreate}
         />
       )}
     </>
