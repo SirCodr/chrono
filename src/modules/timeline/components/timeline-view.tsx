@@ -1,7 +1,13 @@
 'use client'
 
+import { useState, useEffect, useRef } from 'react'
+
 import { TimelineItem } from './timeline-item'
-import type { Record as ChronoRecord, RecordInsert, RecordUpdate } from '@/types/record'
+import type {
+  Record as ChronoRecord,
+  RecordInsert,
+  RecordUpdate
+} from '@/types/record'
 import TimeLineEmptyState from './timeline-empty-state'
 import { differenceInDays, format, isToday } from 'date-fns'
 import { useTranslations } from 'next-intl'
@@ -33,10 +39,13 @@ export function TimelineView({
   isLoading,
   onCreate,
   onUpdate,
-  onDelete,
+  onDelete
 }: Props) {
   const t = useTranslations('timeline.activity')
   const today = new Date()
+
+  const [visibleCount, setVisibleCount] = useState(10)
+  const loaderRef = useRef<HTMLDivElement>(null)
 
   const filteredRecords = records.filter((record) => {
     const recordDate = new Date(record.date)
@@ -59,6 +68,25 @@ export function TimelineView({
     return true
   })
 
+  useEffect(() => {
+    if (isLoading) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setVisibleCount((prev) => prev + 10)
+        }
+      },
+      { threshold: 0.1, rootMargin: '100px' }
+    )
+
+    if (loaderRef.current) {
+      observer.observe(loaderRef.current)
+    }
+
+    return () => observer.disconnect()
+  }, [isLoading, filteredRecords.length, visibleCount])
+
   if (isLoading) {
     return (
       <div className='flex items-center justify-center py-16'>
@@ -67,19 +95,28 @@ export function TimelineView({
     )
   }
 
-  if (filteredRecords.length === 0) return <TimeLineEmptyState onCreate={onCreate} />
+  if (filteredRecords.length === 0)
+    return <TimeLineEmptyState onCreate={onCreate} />
 
-  const groupedRecords = filteredRecords.reduce<GroupedRecords>((groups, record) => {
-    const dateKey = format(new Date(record.date), 'yyyy-MM-dd')
-    if (!groups[dateKey]) groups[dateKey] = []
-    groups[dateKey].push(record)
-    return groups
-  }, {})
+  const visibleRecords = filteredRecords.slice(0, visibleCount)
+
+  const groupedRecords = visibleRecords.reduce<GroupedRecords>(
+    (groups, record) => {
+      const dateKey = format(new Date(record.date), 'yyyy-MM-dd')
+      if (!groups[dateKey]) groups[dateKey] = []
+      groups[dateKey].push(record)
+      return groups
+    },
+    {}
+  )
 
   const hasRecordsToday = groupedRecords[format(today, 'yyyy-MM-dd')]
 
   const formatTimeDifference = (olderDate: Date, newerDate: Date) => {
-    const { days, weeks, months, years } = getTimeDifference(olderDate, newerDate)
+    const { days, weeks, months, years } = getTimeDifference(
+      olderDate,
+      newerDate
+    )
     if (years > 0) return t('timeDifference.years', { count: years })
     if (months > 0) return t('timeDifference.months', { count: months })
     if (weeks > 0) return t('timeDifference.weeks', { count: weeks })
@@ -106,9 +143,11 @@ export function TimelineView({
         .map(([groupDate, dayRecords], groupIndex, allGroups) => {
           const currentGroupDate = new Date(dayRecords[0].date)
           const nextGroup = allGroups[groupIndex + 1]
-          const nextGroupDate = nextGroup ? new Date(nextGroup[1][0].date) : null
+          const nextGroupDate = nextGroup
+            ? new Date(nextGroup[1][0].date)
+            : null
           const timeFromToday = t('timeAgo', {
-            time: formatTimeDifference(currentGroupDate, today),
+            time: formatTimeDifference(currentGroupDate, today)
           })
 
           return (
@@ -123,7 +162,8 @@ export function TimelineView({
                 <div className='ml-16 space-y-4'>
                   {dayRecords
                     .sort(
-                      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+                      (a, b) =>
+                        new Date(b.date).getTime() - new Date(a.date).getTime()
                     )
                     .map((record) => (
                       <TimelineItem
@@ -138,12 +178,23 @@ export function TimelineView({
 
               {nextGroupDate && (
                 <TimelineTimeDifference
-                  timeDifference={formatTimeDifference(nextGroupDate, currentGroupDate)}
+                  timeDifference={formatTimeDifference(
+                    nextGroupDate,
+                    currentGroupDate
+                  )}
                 />
               )}
             </div>
           )
         })}
+
+      {filteredRecords.length > visibleCount && (
+        <div ref={loaderRef} className='py-8 flex justify-center'>
+          <span className='text-sm text-muted-foreground animate-pulse'>
+            Cargando más registros...
+          </span>
+        </div>
+      )}
     </div>
   )
 }

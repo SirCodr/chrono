@@ -2,7 +2,7 @@ import { openDB, type DBSchema, type IDBPDatabase } from 'idb'
 import type { Record } from '@/types/record'
 
 const DB_NAME = 'chrono-db'
-const DB_VERSION = 1
+const DB_VERSION = 2
 const STORE_NAME = 'records'
 
 interface ChronoDB extends DBSchema {
@@ -12,6 +12,7 @@ interface ChronoDB extends DBSchema {
     indexes: {
       'by-date': string
       'by-category': string
+      'by-sync-pending': number
     }
   }
 }
@@ -24,11 +25,18 @@ export function getDb(): Promise<IDBPDatabase<ChronoDB>> {
   if (dbPromise) return dbPromise
 
   dbPromise = openDB<ChronoDB>(DB_NAME, DB_VERSION, {
-    upgrade(db) {
-      if (!db.objectStoreNames.contains(STORE_NAME)) {
+    upgrade(db, oldVersion, _newVersion, transaction) {
+      if (oldVersion < 1) {
         const store = db.createObjectStore(STORE_NAME, { keyPath: 'id' })
         store.createIndex('by-date', 'date')
         store.createIndex('by-category', 'category')
+        store.createIndex('by-sync-pending', 'syncPending')
+      }
+      if (oldVersion === 1) {
+        const store = transaction.objectStore(STORE_NAME)
+        if (!store.indexNames.contains('by-sync-pending')) {
+          store.createIndex('by-sync-pending', 'syncPending')
+        }
       }
     },
   }).then((db) => {
@@ -42,6 +50,12 @@ export function getDb(): Promise<IDBPDatabase<ChronoDB>> {
 export async function getAllRecords(): Promise<Record[]> {
   const db = await getDb()
   return db.getAll(STORE_NAME)
+}
+
+export async function getPendingSyncRecords(): Promise<Record[]> {
+  const db = await getDb()
+  const all = await db.getAll(STORE_NAME)
+  return all.filter((r) => r.syncPending === true)
 }
 
 export async function addRecord(record: Record): Promise<void> {

@@ -72,6 +72,18 @@ const messages = {
       ctaText: 'Crear primer registro'
     }
   },
+  googleCalendar: {
+    status: {
+      synced: 'Sincronizado con Google Calendar',
+      pending: 'Sincronización pendiente',
+      unsynced: 'No sincronizado'
+    },
+    connectGoogle: 'Conectar Calendar',
+    disconnect: 'Desconectar',
+    retrySync: 'Sincronizar ahora',
+    retrySyncAriaLabel: 'Reintentar {count} sincronizaciones pendientes',
+    accountMenu: 'Menú de cuenta'
+  },
   forms: {
     add: {
       header: 'Agregar Nuevo {item}',

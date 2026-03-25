@@ -72,6 +72,18 @@ const messages = {
       ctaText: 'Create First Record'
     }
   },
+  googleCalendar: {
+    status: {
+      synced: 'Synced with Google Calendar',
+      pending: 'Sync pending',
+      unsynced: 'Not synced'
+    },
+    connectGoogle: 'Connect Google Calendar',
+    disconnect: 'Disconnect',
+    retrySync: 'Sync now',
+    retrySyncAriaLabel: 'Retry {count} pending syncs',
+    accountMenu: 'Account menu'
+  },
   forms: {
     add: {
       header: 'Add New {item}',

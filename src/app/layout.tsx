@@ -6,6 +6,7 @@ import './globals.css'
 import { Toaster } from 'sonner'
 import { NextIntlClientProvider } from 'next-intl'
 import { useLocale } from 'next-intl'
+import { AuthProvider } from '@/components/auth-provider'
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
@@ -37,8 +38,10 @@ export default function RootLayout({
       <body
         className={`font-sans ${spaceGrotesk.variable} ${dmSans.variable} antialiased`}
       >
-        <NextIntlClientProvider>{children}</NextIntlClientProvider>
-        <Toaster />
+        <AuthProvider>
+          <NextIntlClientProvider>{children}</NextIntlClientProvider>
+          <Toaster />
+        </AuthProvider>
       </body>
     </html>
   )
