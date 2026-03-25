@@ -3,7 +3,6 @@
 import { useDateFnsLocale } from '@/hooks/useDateFnsLocale'
 import { format, parseISO } from 'date-fns'
 import { TimelineTodayMarker } from './timeline-today-marker'
-import { useTranslations } from 'next-intl'
 
 interface TimelineDateHeaderProps {
   date: string
@@ -13,7 +12,6 @@ interface TimelineDateHeaderProps {
 
 export function TimelineDateHeader({ date, timeFromToday, isToday }: TimelineDateHeaderProps) {
   const dateLocale = useDateFnsLocale()
-  const t = useTranslations('timeline.activity')
 
   if (isToday) {
     return <TimelineTodayMarker />

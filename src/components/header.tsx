@@ -115,6 +115,7 @@ export function Header({ pendingSyncCount = 0, onRetrySync }: HeaderProps) {
                   aria-label={t('googleCalendar.accountMenu')}
                 >
                   {user.image && !imgError ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
                     <img
                       src={user.image}
                       alt={user.name ? `Avatar de ${user.name}` : 'Avatar del usuario'}

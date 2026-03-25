@@ -8,7 +8,6 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card'
-import { useTranslations } from 'next-intl'
 import { useState } from 'react'
 
 const SUPABASE_DATA = [
@@ -195,7 +194,6 @@ const SUPABASE_DATA = [
 ]
 
 export default function ImportPage() {
-  const t = useTranslations('common')
   const [status, setStatus] = useState<
     'idle' | 'loading' | 'success' | 'error'
   >('idle')

@@ -48,10 +48,12 @@ export function GoogleCalendarSync({
         classes,
         className
       )}
-      aria-label={t(labelKey)}
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      aria-label={t(labelKey as any)}
     >
       <Icon className='h-3 w-3' aria-hidden='true' />
-      {t(labelKey)}
+      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+      {t(labelKey as any)}
     </span>
   )
 }
